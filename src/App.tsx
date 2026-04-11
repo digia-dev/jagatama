@@ -10,17 +10,21 @@ import Services from "./pages/Services.tsx";
 import Artikel from "./pages/Artikel.tsx";
 import ArticleDetail from "./pages/ArticleDetail.tsx";
 import ScrollToTop from "@/components/ScrollToTop.tsx";
+import { CartProvider } from "@/context/CartContext";
+import CartSheet from "@/components/CartSheet";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <ScrollToTop />
-        <Routes>
+    <CartProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <ScrollToTop />
+          <CartSheet />
+          <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/tim" element={<Team />} />
           <Route path="/layanan" element={<Services />} />
@@ -28,8 +32,9 @@ const App = () => (
           <Route path="/artikel/:slug" element={<ArticleDetail />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </CartProvider>
   </QueryClientProvider>
 );
 

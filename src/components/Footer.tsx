@@ -8,9 +8,18 @@ const Footer = () => {
       <div className="mx-auto max-w-7xl">
         <div className="mb-12 grid gap-12 md:grid-cols-3">
           <div>
-            <h3 className="mb-3 font-heading text-xl font-bold">
-              <span className="text-harvest">Jagasura</span> Agrotama
-            </h3>
+            <Link to="/" className="mb-3 flex items-center gap-3 py-2">
+              <img
+                src="/logotp.png"
+                alt="PT Jagasura Agrotama Indonesia"
+                className="h-12 w-auto shrink-0 object-contain"
+                width={48}
+                height={48}
+              />
+              <h3 className="font-heading text-xl font-bold">
+                <span className="text-harvest">Jagasura</span> Agrotama
+              </h3>
+            </Link>
             <p className="font-body text-sm leading-relaxed text-primary-foreground/60">
               Menebar gagasan, menumbuhkan wawasan, meningkatkan kapasitas dan kesejahteraan.
             </p>
