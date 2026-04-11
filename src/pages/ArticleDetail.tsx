@@ -4,14 +4,17 @@ import Footer from "@/components/Footer";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
 import { getArticleBySlug } from "@/data/articles";
 import { ChevronLeft } from "lucide-react";
+import { useArticleBySlugCms } from "@/hooks/useCmsQueries";
 
 const SPLIT_AFTER_PARAGRAPH = 2;
 
 const ArticleDetail = () => {
   const { slug } = useParams<{ slug: string }>();
-  const article = slug ? getArticleBySlug(slug) : undefined;
+  const q = useArticleBySlugCms(slug);
+  const fallback = slug ? getArticleBySlug(slug) : undefined;
+  const article = q.isFetched ? (q.data ?? fallback) : undefined;
 
-  if (!article) {
+  if (!article && q.isFetched) {
     return (
       <>
         <Navbar />
@@ -32,9 +35,22 @@ const ArticleDetail = () => {
     );
   }
 
-  const extras = article.extraImages?.length
-    ? article.content.slice(0, SPLIT_AFTER_PARAGRAPH)
-    : null;
+  if (!article) {
+    return (
+      <>
+        <Navbar />
+        <main className="bg-cream-gradient pb-24 pt-28 md:pt-32">
+          <div className="mx-auto max-w-7xl px-6 md:px-12 lg:px-20 xl:px-32">
+            <div className="h-40 animate-pulse rounded-sm bg-muted/40" aria-hidden />
+          </div>
+        </main>
+        <Footer />
+        <WhatsAppFloat />
+      </>
+    );
+  }
+
+  const extras = article.extraImages?.length ? article.content.slice(0, SPLIT_AFTER_PARAGRAPH) : null;
   const afterExtras = article.extraImages?.length ? article.content.slice(SPLIT_AFTER_PARAGRAPH) : article.content;
 
   return (
@@ -66,38 +82,36 @@ const ArticleDetail = () => {
           </figure>
 
           <div className="article-body space-y-6 border-t border-border pt-10">
-            {extras
-              ? (
-                <>
-                  {extras.map((paragraph, i) => (
-                    <p key={`a-${i}`} className="font-body text-[17px] leading-[1.75] text-foreground md:text-lg md:leading-[1.8]">
-                      {paragraph}
-                    </p>
-                  ))}
-                  <div className="my-10 grid gap-4 sm:grid-cols-2">
-                    {(article.extraImages ?? []).map((item, i) => (
-                      <figure key={i} className="overflow-hidden rounded-sm border border-border/60 bg-card/50 shadow-sm">
-                        <img src={item.src} alt={item.caption ?? article.title} className="aspect-[4/3] w-full object-cover" width={800} height={600} />
-                        {item.caption ? (
-                          <figcaption className="border-t border-border/50 px-4 py-3 font-body text-sm leading-snug text-muted-foreground">{item.caption}</figcaption>
-                        ) : null}
-                      </figure>
-                    ))}
-                  </div>
-                  {afterExtras.map((paragraph, i) => (
-                    <p key={`b-${i}`} className="font-body text-[17px] leading-[1.75] text-foreground md:text-lg md:leading-[1.8]">
-                      {paragraph}
-                    </p>
-                  ))}
-                </>
-              )
-              : (
-                article.content.map((paragraph, i) => (
-                  <p key={i} className="font-body text-[17px] leading-[1.75] text-foreground md:text-lg md:leading-[1.8]">
+            {extras ? (
+              <>
+                {extras.map((paragraph, i) => (
+                  <p key={`a-${i}`} className="font-body text-[17px] leading-[1.75] text-foreground md:text-lg md:leading-[1.8]">
                     {paragraph}
                   </p>
-                ))
-              )}
+                ))}
+                <div className="my-10 grid gap-4 sm:grid-cols-2">
+                  {(article.extraImages ?? []).map((item, i) => (
+                    <figure key={i} className="overflow-hidden rounded-sm border border-border/60 bg-card/50 shadow-sm">
+                      <img src={item.src} alt={item.caption ?? article.title} className="aspect-[4/3] w-full object-cover" width={800} height={600} />
+                      {item.caption ? (
+                        <figcaption className="border-t border-border/50 px-4 py-3 font-body text-sm leading-snug text-muted-foreground">{item.caption}</figcaption>
+                      ) : null}
+                    </figure>
+                  ))}
+                </div>
+                {afterExtras.map((paragraph, i) => (
+                  <p key={`b-${i}`} className="font-body text-[17px] leading-[1.75] text-foreground md:text-lg md:leading-[1.8]">
+                    {paragraph}
+                  </p>
+                ))}
+              </>
+            ) : (
+              article.content.map((paragraph, i) => (
+                <p key={i} className="font-body text-[17px] leading-[1.75] text-foreground md:text-lg md:leading-[1.8]">
+                  {paragraph}
+                </p>
+              ))
+            )}
           </div>
         </div>
       </article>

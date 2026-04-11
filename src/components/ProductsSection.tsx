@@ -8,11 +8,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { ChevronRight, Minus, Plus, ShoppingCart, Trash2 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-import { productsCatalog, formatIdr, type CatalogProduct } from "@/data/productsCatalog";
+import { formatIdr, type CatalogProduct } from "@/data/productsCatalog";
+import { useProductsCatalogMerged } from "@/hooks/useCmsQueries";
 
 const ProductsSection = () => {
   const [active, setActive] = useState<CatalogProduct | null>(null);
   const { addProduct, getQty, increment, decrement, removeProduct, setCartOpen } = useCart();
+  const { products: productsCatalog } = useProductsCatalogMerged();
 
   return (
     <section id="produk" className="section-padding bg-earth-gradient">
@@ -74,8 +76,11 @@ const ProductsSection = () => {
                   onClick={(e) => e.stopPropagation()}
                 >
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <p className="font-body text-xs text-muted-foreground sm:max-w-[55%]">
+                      Harga indikatif; konfirmasi admin sebelum bayar.
+                    </p>
                     {qty === 0 ? (
-                      <div className="flex flex-wrap items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-2 sm:justify-end">
                         <Button
                           type="button"
                           size="sm"

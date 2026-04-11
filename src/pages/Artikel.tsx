@@ -3,10 +3,12 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
 import ArticleCard from "@/components/ArticleCard";
-import { articles } from "@/data/articles";
 import { ChevronLeft } from "lucide-react";
+import { useArticlesMerged } from "@/hooks/useCmsQueries";
 
 const Artikel = () => {
+  const { articles } = useArticlesMerged();
+
   return (
     <>
       <Navbar />

@@ -1,11 +1,12 @@
 import { Link } from "react-router-dom";
-import { articles } from "@/data/articles";
 import ArticleCard from "@/components/ArticleCard";
 import { ArrowRight } from "lucide-react";
-
-const previewArticles = articles.slice(0, 3);
+import { useArticlesMerged } from "@/hooks/useCmsQueries";
 
 const ArticlesSection = () => {
+  const { articles } = useArticlesMerged();
+  const previewArticles = articles.slice(0, 3);
+
   return (
     <section id="artikel" className="section-padding bg-cream-gradient">
       <div className="mx-auto max-w-7xl">

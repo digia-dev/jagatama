@@ -15,9 +15,9 @@ Create a complete Admin CMS system for managing all sections of a company profil
 ## DATABASE CONFIGURATION
 
 **Database Credentials (UPDATE THESE):**
-- Database: `vade3664_tiptop`
-- Username: `vade3664_tiptop`
-- Password: `tiptopxyanjay123zzking`
+- Database: `vade3664_jagatama`
+- Username: `vade3664_jagatama`
+- Password: `jagatamaxyanjay123zzking`
 - Host: `localhost` (or your database host)
 
 **Database File:**
@@ -63,7 +63,7 @@ For each section identified, create a PHP API file following `@apitemplate/apite
 - Use MariaDB syntax (as per user rules)
 
 **API Base URL :**
-- Format: `fire.vadr.my.id/tiptop/{file.php}`
+- Format: `fire.vadr.my.id/jagatama/{file.php}`
 
 **Authentication:**
 - GET requests: Public (no auth required)
