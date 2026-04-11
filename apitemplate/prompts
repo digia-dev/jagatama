@@ -1,0 +1,366 @@
+# FULL ADMIN CMS CREATION INSTRUCTIONS
+## Generic Company Profile Website CMS
+
+## PROJECT OVERVIEW
+Create a complete Admin CMS system for managing all sections of a company profile website homepage. The system should include:
+1. Backend PHP APIs for CRUD operations
+2. Database schema for all sections
+3. Next.js admin routes with authentication
+4. Admin dashboard with full CRUD management UI
+
+**IMPORTANT:** Analyze the homepage structure (`@app/page.tsx`) to identify all sections that need CMS management. Each section component should have its own CRUD API and database table.
+
+---
+
+## DATABASE CONFIGURATION
+
+**Database Credentials (UPDATE THESE):**
+- Database: `vade3664_tiptop`
+- Username: `vade3664_tiptop`
+- Password: `tiptopxyanjay123zzking`
+- Host: `localhost` (or your database host)
+
+**Database File:**
+- Create `db.php` based on `@apitemplate/databasetemplate.php`
+- Update with your database credentials
+
+---
+
+## SECTIONS ANALYSIS
+
+**Step 1:** Analyze `@app/page.tsx` to identify all sections/components that need CMS management.
+
+**Step 2:** For each section, determine:
+- What content needs to be managed (text, images, structured data)
+- Whether it's a single content block or a list of items
+- What fields are needed for each item
+- **Never include icon fields in the database** - users find it hard to know Iconify icon names; use text labels or predefined options instead
+
+**Common Section Types:**
+- **Hero/Carousel Sections:** Multiple images with order/sequence
+- **Content Sections:** Text content (title, description, etc.)
+- **List Sections:** Multiple items (services, portfolio, testimonials, etc.)
+- **Contact Info:** Single row with contact details
+- **Settings/Config:** Single row configuration data
+
+**Step 3:** Create appropriate database tables and APIs for each identified section.
+
+---
+
+## API FILES TO CREATE
+
+For each section identified, create a PHP API file following `@apitemplate/apitemplate.php` template:
+
+**Naming Convention:**
+- Use snake_case for table names
+- Use descriptive names (e.g., `hero_images.php`, `services.php`, `testimonials.php`)
+- For single-row content: Use singular name (e.g., `about_content.php`, `contact_info.php`)
+
+**API Structure:**
+- Follow `@apitemplate/apitemplate.php` pattern exactly
+- Implement full CRUD operations (Create, Read, Update, Delete)
+- For single-row tables: Use UPDATE instead of INSERT for edits
+- Use MariaDB syntax (as per user rules)
+
+**API Base URL :**
+- Format: `fire.vadr.my.id/tiptop/{file.php}`
+
+**Authentication:**
+- GET requests: Public (no auth required)
+- POST/PUT/DELETE requests: Require Bearer token (use `require_auth()` from databasetemplate.php)
+- Admin login: POST to `admin.php/login` returns JWT token
+
+---
+
+## DATABASE SCHEMA
+
+Create SQL file `database.sql` with all required tables:
+
+**For Each Section:**
+1. Analyze the component structure to determine fields needed
+2. Create appropriate table with:
+   - `id` (INT, AUTO_INCREMENT, PRIMARY KEY)
+   - Section-specific fields
+   - `created_at` (TIMESTAMP) for list items
+   - `updated_at` (TIMESTAMP) for single-row content
+   - `order` (INT) if items need ordering
+
+**Admin Table:**
+- Create `admins` table based on `@apitemplate/move/admin.sql`
+- For admin authentication
+
+**Notes:**
+- Use MariaDB syntax
+- Use UTF8MB4 charset for proper Unicode support
+- Add appropriate indexes for performance
+- For single-row tables (like contact info, about content), use UPDATE operations instead of INSERT
+- **Never store listed/repeating data (e.g. additional images, gallery items) as JSON** - always create a separate related table with proper foreign keys
+
+---
+
+## FILE UPLOAD API
+
+**Upload Endpoint:** `https://[YOUR_API_DOMAIN]/[API_PATH]/upload.php`
+- Based on `@apitemplate/move/upload.php`
+- Accepts: POST with `file` or `files[]` field
+- Returns: JSON with `url` field containing the uploaded image URL
+- Requires: Bearer token authentication for POST requests
+- Converts images to WebP format automatically
+- Handles image compression and optimization
+
+---
+
+## NEXT.JS ADMIN ROUTES
+
+**Admin Entry Point:** When user navigates to `/admin`, redirect directly to `/admin/login` (no landing page or dashboard preview).
+
+Create the following Next.js routes:
+
+### `/admin/login`
+- Login page component
+- Form: username, password
+- On success: Store JWT token in localStorage/sessionStorage
+- Redirect to `/admin/dashboard`
+- API: POST to `[API_BASE_URL]/admin.php/login`
+- Handle authentication errors gracefully
+
+### `/admin/dashboard`
+- Protected route (requires authentication)
+- Dashboard layout with navigation sidebar
+- **Dynamic Section Management:**
+  - Analyze homepage sections from `@app/page.tsx`
+  - Create CRUD interface for each section
+  - Each section should have its own management page/tab
+
+### Dashboard Features:
+- **Navigation:** Sidebar with links to each section
+- **CRUD Operations:** For each section, provide:
+  - List view (table/cards) for list-type sections
+  - Form view for single-content sections
+  - **Add:** Always use a modal or navigate to a dedicated add page (never inline form)
+  - **Edit:** Always use a modal or navigate to a dedicated edit page (never inline form)
+  - **Delete:** Always show a confirmation modal before deleting - never delete without user confirmation
+  - Image upload using file browser (calls upload.php API)
+  - Form validation
+  - Success/error notifications
+  - Loading states
+
+### Image Management:
+- Use `<input type="file">` for image selection
+- On file select, immediately upload to `upload.php` API
+- Display uploaded image preview
+- Store returned URL in form field
+- For edit: Show current image with option to replace
+- Support multiple images for galleries/carousels
+
+---
+
+## TECHNICAL REQUIREMENTS
+
+### API Structure:
+- Follow `@apitemplate/apitemplate.php` pattern exactly
+- Use MariaDB syntax (as per user rules)
+- All APIs should use `db.php` for database connection
+- Implement proper error handling
+- Return JSON responses with appropriate HTTP status codes
+- Use prepared statements for all queries (security)
+- Validate all input data
+- Handle CORS properly
+
+### Next.js Admin:
+- Use TypeScript
+- Implement authentication middleware/guard
+- Store JWT token securely (localStorage or httpOnly cookies)
+- Handle token expiration and refresh
+- Use proper error handling and loading states
+- **Admin pages must be fully mobile responsive** - including dashboard, sidebar, tables, and add/edit modals
+- Use Tailwind CSS for styling
+- Use form validation (client-side and API validation)
+- Implement proper TypeScript types for all API responses
+
+### Authentication Flow:
+1. User logs in at `/admin/login`
+2. POST to `[API_BASE_URL]/admin.php/login` with username/password
+3. Receive JWT token in response
+4. Store token in localStorage/sessionStorage
+5. Include token in Authorization header: `Bearer {token}` for all protected requests
+6. Redirect to `/admin/dashboard`
+7. On dashboard, check for token on page load
+8. If no token or token expired, redirect to `/admin/login`
+9. Implement token refresh mechanism if needed
+
+---
+
+## UI/UX REQUIREMENTS
+
+### Dashboard Design:
+- Clean, professional admin interface
+- **Must be mobile responsive** - layout, sidebar (collapse to hamburger on mobile), tables (scrollable or stacked), and all modals (add/edit/delete confirmation) must work on small screens
+- Consistent design system (match or complement main website)
+- Sidebar navigation with section links
+- Main content area for CRUD operations
+- Toast notifications for success/error messages
+- **Confirmation modal for every delete operation** - required, no exceptions
+- Loading states for API calls
+- Image preview before upload
+- File browser for image selection
+- Drag-and-drop support (optional but recommended)
+
+### Form Design:
+- Use proper form labels
+- Required field indicators (*)
+- Validation error messages
+- Image upload with preview
+- Rich text editor for long text fields (if needed)
+- Save/Cancel buttons
+- **Add/Edit modals must be mobile responsive** - full-width on small screens, scrollable content, touch-friendly buttons
+- Auto-save draft (optional)
+
+---
+
+## IMPLEMENTATION STEPS
+
+1. **Analyze Homepage Structure**
+   - Read `@app/page.tsx` and all component files
+   - Identify all sections that need CMS management
+   - Determine data structure for each section
+
+2. **Create Database Schema**
+   - Design tables for each section
+   - Create `database.sql` file
+   - Include admin table
+
+3. **Create Backend APIs**
+   - Create `db.php` with database configuration
+   - Create API file for each section
+   - Create `admin.php` for authentication
+   - Create/verify `upload.php` for file uploads
+
+4. **Create Next.js Admin Routes**
+   - Create `/admin/login` page
+   - Create `/admin/dashboard` layout
+   - Create authentication middleware
+   - Create CRUD components for each section
+
+5. **Implement CRUD Interfaces**
+   - Build list views for list-type sections
+   - Build form views for all sections
+   - Implement image upload functionality
+   - Add validation and error handling
+
+6. **Testing**
+   - Test all CRUD operations
+   - Test authentication flow
+   - Test image uploads
+   - Test responsive design
+   - Verify data persistence
+
+---
+
+## REFERENCE FILES
+
+- API Template: `@apitemplate/apitemplate.php`
+- Database Template: `@apitemplate/databasetemplate.php`
+- Admin Template: `@apitemplate/admintemplate.php`
+- Upload Template: `@apitemplate/move/upload.php`
+- Admin SQL: `@apitemplate/move/admin.sql`
+- Homepage Structure: `@app/page.tsx` (analyze this to determine sections)
+
+---
+
+## CONFIGURATION VARIABLES
+
+**Update these in your implementation:**
+- `[YOUR_DATABASE_NAME]` - Your database name
+- `[YOUR_DATABASE_USER]` - Your database username
+- `[YOUR_DATABASE_PASSWORD]` - Your database password
+- `[YOUR_API_DOMAIN]` - Your API domain
+- `[API_PATH]` - Your API path (e.g., `/api`, `/v1`, `/manuver`)
+
+---
+
+## DELIVERABLES CHECKLIST
+
+- [ ] `db.php` - Database configuration file
+- [ ] `database.sql` - Complete database schema for all sections
+- [ ] API files - One PHP file per section (e.g., `hero_images.php`, `services.php`, etc.)
+- [ ] `admin.php` - Admin authentication API
+- [ ] `upload.php` - File upload API (copy from template)
+- [ ] Next.js `/admin/login` route and component
+- [ ] Next.js `/admin/dashboard` route and component
+- [ ] Dashboard navigation sidebar
+- [ ] CRUD UI for each identified section
+- [ ] Authentication middleware/guard
+- [ ] Token management (storage, refresh, expiration)
+- [ ] Image upload integration
+- [ ] Form validation
+- [ ] Error handling
+- [ ] Loading states
+- [ ] Responsive design
+
+---
+
+## ADDITIONAL NOTES
+
+### CMS UX Rules (MANDATORY):
+- **Add/Edit:** Always use a modal or separate page - never inline forms for add or edit
+- **Add/Edit modals:** Must be mobile responsive (full-width on small screens, scrollable, touch-friendly)
+- **Delete:** Always show a confirmation modal before any delete - never delete without user confirmation
+- **Listed data:** For repeating data (e.g. additional images, gallery items), use a separate table - never store as JSON
+- **No icon fields in DB:** Do not include icon columns - users find Iconify naming hard; use text labels or dropdown options instead
+- **Admin entry:** When opening `/admin`, redirect directly to `/admin/login`
+
+- All APIs should follow RESTful conventions
+- Use proper HTTP methods (GET, POST, PUT, DELETE)
+- Implement proper CORS headers
+- Handle errors gracefully with meaningful messages
+- Use prepared statements for all database queries (security)
+- Validate all input data on both client and server
+- For single-row tables, use UPDATE instead of INSERT for edits
+- Image uploads should be converted to WebP format
+- Admin dashboard should be intuitive and easy to use
+- Ensure all CRUD operations work seamlessly
+- Test all functionality before delivery
+- Follow MariaDB syntax for all SQL queries
+- Use TypeScript for type safety in Next.js
+- Implement proper error boundaries
+- Add loading skeletons for better UX
+
+---
+
+## USAGE INSTRUCTION FOR AI
+
+**When creating the CMS, follow this process:**
+
+1. **Analysis Phase:**
+   - Read and analyze `@app/page.tsx`
+   - Read all component files referenced
+   - Identify all sections that need CMS management
+   - Determine data structure for each section
+
+2. **Database Design:**
+   - Create `database.sql` with all required tables
+   - Design tables based on section requirements
+   - Include admin table for authentication
+
+3. **Backend Development:**
+   - Create `db.php` with database configuration
+   - Create API file for each section following template
+   - Create `admin.php` for authentication
+   - Verify/update `upload.php` for file uploads
+
+4. **Frontend Development:**
+   - Create Next.js admin routes
+   - Implement authentication flow
+   - Build dashboard layout
+   - Create CRUD interfaces for each section
+   - Integrate image upload functionality
+
+5. **Testing & Refinement:**
+   - Test all CRUD operations
+   - Test authentication
+   - Test image uploads
+   - Verify responsive design
+   - Fix any issues
+
+**Important:** All code should be production-ready, secure, and follow best practices. Use the referenced template files as exact patterns for structure and implementation. Adapt the implementation based on the actual homepage structure and requirements.
