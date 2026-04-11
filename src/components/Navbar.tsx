@@ -1,20 +1,14 @@
 import { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
-
-const navLinks = [
-  { label: "Beranda", href: "#beranda" },
-  { label: "Tentang Kami", href: "#tentang" },
-  { label: "Tim Kami", href: "#tim" },
-  { label: "Layanan", href: "#layanan" },
-  { label: "Produk", href: "#produk" },
-  { label: "Artikel", href: "#artikel" },
-  { label: "Gallery", href: "#gallery" },
-  { label: "Kontak", href: "#kontak" },
-];
+import { mainNavLinks } from "@/data/navLinks";
 
 const Navbar = () => {
+  const { pathname } = useLocation();
+  const isHome = pathname === "/";
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const solidNav = scrolled || !isHome;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);
@@ -24,57 +18,58 @@ const Navbar = () => {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        scrolled
-          ? "bg-background/95 backdrop-blur-md shadow-md py-3"
-          : "bg-transparent py-5"
+      className={`fixed left-0 right-0 top-0 z-50 transition-all duration-500 ${
+        solidNav ? "bg-background/95 py-3 shadow-md backdrop-blur-md" : "bg-transparent py-5"
       }`}
     >
-      <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
-        <a href="#beranda" className="flex items-center gap-3">
-          <div className={`font-heading font-bold text-xl tracking-tight transition-colors duration-300 ${scrolled ? 'text-foreground' : 'text-primary-foreground'}`}>
-            <span className="text-harvest">Jagasura</span>{" "}
-            Agrotama
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-6">
+        <Link to="/" className="flex items-center gap-3">
+          <div
+            className={`font-heading text-xl font-bold tracking-tight transition-colors duration-300 ${
+              solidNav ? "text-foreground" : "text-primary-foreground"
+            }`}
+          >
+            <span className="text-harvest">Jagasura</span> Agrotama
           </div>
-        </a>
+        </Link>
 
-        {/* Desktop */}
-        <div className="hidden lg:flex items-center gap-8">
-          {navLinks.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
+        <div className="hidden items-center gap-8 lg:flex">
+          {mainNavLinks.map((link) => (
+            <Link
+              key={link.label}
+              to={link.to}
               className={`text-sm font-medium tracking-wide transition-colors duration-300 hover:text-harvest ${
-                scrolled ? "text-foreground" : "text-primary-foreground"
+                solidNav ? "text-foreground" : "text-primary-foreground"
               }`}
             >
               {link.label}
-            </a>
+            </Link>
           ))}
         </div>
 
-        {/* Mobile toggle */}
         <button
+          type="button"
           onClick={() => setOpen(!open)}
-          className={`lg:hidden transition-colors ${scrolled ? "text-foreground" : "text-primary-foreground"}`}
+          className={`transition-colors lg:hidden ${solidNav ? "text-foreground" : "text-primary-foreground"}`}
+          aria-expanded={open}
+          aria-label={open ? "Tutup menu" : "Buka menu"}
         >
           {open ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
 
-      {/* Mobile menu */}
       {open && (
-        <div className="lg:hidden bg-background/98 backdrop-blur-lg border-t border-border">
-          <div className="px-6 py-6 flex flex-col gap-4">
-            {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
+        <div className="border-t border-border bg-background/98 backdrop-blur-lg lg:hidden">
+          <div className="flex flex-col gap-4 px-6 py-6">
+            {mainNavLinks.map((link) => (
+              <Link
+                key={link.label}
+                to={link.to}
                 onClick={() => setOpen(false)}
-                className="text-foreground font-medium text-base py-2 border-b border-border/50 hover:text-harvest transition-colors"
+                className="border-b border-border/50 py-2 font-medium text-base text-foreground transition-colors hover:text-harvest"
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
           </div>
         </div>

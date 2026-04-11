@@ -1,0 +1,13 @@
+---
+description: Reset window scroll on client-side route changes (React Router)
+alwaysApply: true
+---
+
+# React Router scroll position
+
+When adding or changing routes in this SPA:
+
+- Mount a single **`ScrollToTop`** component inside **`BrowserRouter`** (see `src/components/ScrollToTop.tsx`). It must use **`useLocation`** (`pathname` and **`hash`**). When there is **no hash**, scroll the window to the top. When there **is** a hash (e.g. in-page section on the home page), scroll the element with that **`id`** into view after the route content mounts (retry with **`requestAnimationFrame`** until found or cap attempts). Do **not** scroll to top on navigations that include a hash, or section links will land at the wrong scroll position.
+- On app init, set **`window.history.scrollRestoration = "manual"`** once so the browser does not restore a stale scroll position on client navigations.
+- For links to home sections, use **`Link`** with **`to={{ pathname: "/", hash: "produk" }}`** (hash without `#`), not the string **`"/#produk"`**, so React Router applies **`location.hash`** correctly. Shared definitions live in **`src/data/navLinks.ts`**.
+- New top-level page components should not duplicate scroll logic unless there is a special case.

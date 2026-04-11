@@ -1,67 +1,31 @@
-import galleryImg from "@/assets/gallery-greenhouse.jpg";
+import { Link } from "react-router-dom";
+import { articles } from "@/data/articles";
+import ArticleCard from "@/components/ArticleCard";
+import { ArrowRight } from "lucide-react";
 
-const articles = [
-  {
-    title: "Regenerasi Petani Muda: Tantangan dan Peluang di Era Modern",
-    excerpt: "Indonesia membutuhkan generasi baru petani yang tidak hanya memahami cara bercocok tanam, tetapi juga menguasai teknologi dan bisnis.",
-    category: "Agro-Education",
-    date: "15 Mar 2026",
-  },
-  {
-    title: "Melon Premium Jagasura Farm Tembus Pasar Nasional",
-    excerpt: "Dengan budidaya greenhouse berteknologi tinggi, melon varietas Fujisawa dan Inthanon berhasil memasuki pasar premium.",
-    category: "Product Update",
-    date: "8 Mar 2026",
-  },
-  {
-    title: "Pelatihan Pertanian Terpadu Batch ke-12 Dibuka",
-    excerpt: "Program magang dan pelatihan pertanian terpadu untuk generasi muda kembali dibuka dengan kuota terbatas.",
-    category: "Training",
-    date: "1 Mar 2026",
-  },
-];
+const previewArticles = articles.slice(0, 3);
 
 const ArticlesSection = () => {
   return (
     <section id="artikel" className="section-padding bg-cream-gradient">
-      <div className="max-w-7xl mx-auto">
-        <p className="text-harvest font-body text-sm tracking-[0.25em] uppercase mb-3">Artikel</p>
-        <h2 className="font-heading text-3xl md:text-5xl font-bold text-foreground leading-tight mb-16">
-          Cerita dari Ladang
-        </h2>
+      <div className="mx-auto max-w-7xl">
+        <p className="mb-3 font-body text-sm uppercase tracking-[0.25em] text-harvest">Artikel</p>
+        <h2 className="mb-16 font-heading text-3xl font-bold leading-tight text-foreground md:text-5xl">Cerita dari Ladang</h2>
 
-        <div className="grid lg:grid-cols-3 gap-6">
-          {articles.map((article, i) => (
-            <article
-              key={i}
-              className="group bg-card border border-border rounded-sm overflow-hidden hover:border-harvest/30 transition-all duration-300 hover:-translate-y-1"
-            >
-              <div className="relative h-48 overflow-hidden">
-                <img
-                  src={galleryImg}
-                  alt={article.title}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  loading="lazy"
-                  width={1280}
-                  height={720}
-                />
-                <div className="absolute top-4 left-4">
-                  <span className="bg-harvest text-harvest-foreground text-xs font-body font-semibold px-3 py-1 rounded-full">
-                    {article.category}
-                  </span>
-                </div>
-              </div>
-              <div className="p-6">
-                <p className="font-body text-xs text-muted-foreground mb-3">{article.date}</p>
-                <h3 className="font-heading text-lg font-semibold text-foreground mb-2 leading-snug group-hover:text-harvest transition-colors">
-                  {article.title}
-                </h3>
-                <p className="font-body text-sm text-muted-foreground leading-relaxed">
-                  {article.excerpt}
-                </p>
-              </div>
-            </article>
+        <div className="grid gap-6 lg:grid-cols-3">
+          {previewArticles.map((article) => (
+            <ArticleCard key={article.slug} article={article} />
           ))}
+        </div>
+
+        <div className="mt-12 flex justify-center md:mt-14">
+          <Link
+            to="/artikel"
+            className="inline-flex items-center gap-2 rounded-sm border border-border bg-card px-8 py-4 font-body text-base font-semibold text-foreground transition-all hover:border-harvest/40 hover:bg-secondary/60"
+          >
+            Lihat semua artikel
+            <ArrowRight className="h-4 w-4" aria-hidden />
+          </Link>
         </div>
       </div>
     </section>
