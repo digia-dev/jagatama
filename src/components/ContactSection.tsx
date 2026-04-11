@@ -1,11 +1,6 @@
 import { MapPin, Phone, Send } from "lucide-react";
 import { useState } from "react";
-
-const contacts = [
-  { name: "Mudi", phone: "+62 857-4385-5637" },
-  { name: "Muji", phone: "+62 859-4625-9796" },
-  { name: "Kamal", phone: "+62 856-5999-0002" },
-];
+import { whatsappContacts } from "@/data/whatsappContacts";
 
 const ContactSection = () => {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
@@ -13,7 +8,7 @@ const ContactSection = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const waMessage = encodeURIComponent(`Halo, saya ${form.name} (${form.email}). ${form.message}`);
-    window.open(`https://wa.me/6285743855637?text=${waMessage}`, "_blank");
+    window.open(`https://wa.me/${whatsappContacts[0].waId}?text=${waMessage}`, "_blank");
   };
 
   return (
@@ -44,10 +39,10 @@ const ContactSection = () => {
                 <h3 className="font-heading text-lg font-semibold text-foreground">WhatsApp</h3>
               </div>
               <div className="space-y-3">
-                {contacts.map((c, i) => (
+                {whatsappContacts.map((c) => (
                   <a
-                    key={i}
-                    href={`https://wa.me/${c.phone.replace(/[^0-9]/g, "")}`}
+                    key={c.waId}
+                    href={`https://wa.me/${c.waId}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-3 p-3 bg-card border border-border rounded-sm hover:border-harvest/30 transition-all group"

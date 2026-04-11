@@ -1,4 +1,16 @@
 import galleryImg from "@/assets/gallery-greenhouse.jpg";
+import aboutImg from "@/assets/about-farming.jpg";
+import hortiImg from "@/assets/product-horticulture.jpg";
+import melonImg from "@/assets/product-melon.jpg";
+import tropicalImg from "@/assets/product-tropical.jpg";
+import livestockImg from "@/assets/product-livestock.jpg";
+import servicesImg from "@/assets/services-training.jpg";
+import heroImg from "@/assets/hero-greenhouse.jpg";
+
+export interface ArticleExtraImage {
+  src: string;
+  caption?: string;
+}
 
 export interface Article {
   slug: string;
@@ -8,6 +20,7 @@ export interface Article {
   date: string;
   image: string;
   content: string[];
+  extraImages?: ArticleExtraImage[];
 }
 
 export const articles: Article[] = [
@@ -19,6 +32,10 @@ export const articles: Article[] = [
     category: "Agro-Education",
     date: "15 Mar 2026",
     image: galleryImg,
+    extraImages: [
+      { src: aboutImg, caption: "Kegiatan lapangan bersama peserta magang di area budidaya." },
+      { src: servicesImg, caption: "Ruang pelatihan dan demonstrasi teknik budidaya terkini." },
+    ],
     content: [
       "Regenerasi petani muda menjadi salah satu agenda strategis ketahanan pangan nasional. Di tengah penuaan demografi pelaku pertanian, masuknya generasi muda ke sektor ini menentukan apakah Indonesia mampu menjaga produktivitas sekaligus daya saing di pasar global.",
       "Tantangan utamanya tidak lagi sekadar keterampilan budidaya lapangan. Petani masa kini dihadapkan pada data, rantai pasok, standar mutu, serta tuntutan keberlanjutan lingkungan. Tanpa literasi digital dan manajemen usaha, transformasi pertanian akan berjalan lambat.",
@@ -34,7 +51,11 @@ export const articles: Article[] = [
       "Dengan budidaya greenhouse berteknologi tinggi, melon varietas Fujisawa dan Inthanon berhasil memasuki pasar premium.",
     category: "Product Update",
     date: "8 Mar 2026",
-    image: galleryImg,
+    image: melonImg,
+    extraImages: [
+      { src: galleryImg, caption: "Greenhouse dengan pengaturan iklim mikro untuk budidaya melon." },
+      { src: hortiImg, caption: "Sortasi dan pengecekan mutu sebelum distribusi." },
+    ],
     content: [
       "Produksi melon premium di lingkungan greenhouse memungkinkan pengendalian iklim mikro, irigasi presisi, dan jadwal panen yang lebih konsisten. Kombinasi varietas unggul dengan protokol sanitasi lahan menjadi fondasi mutu yang dicari oleh pembeli segmen menengah ke atas.",
       "Varietas seperti Fujisawa dan Inthanon dipilih setelah uji adaptasi dan uji pasar. Tim on-farm memantau parameter brix, tekstur daging buah, dan ketebalan kulit agar produk memenuhi standar sortasi yang disepakati dengan mitra distribusi.",
@@ -49,7 +70,11 @@ export const articles: Article[] = [
       "Program magang dan pelatihan pertanian terpadu untuk generasi muda kembali dibuka dengan kuota terbatas.",
     category: "Training",
     date: "1 Mar 2026",
-    image: galleryImg,
+    image: servicesImg,
+    extraImages: [
+      { src: heroImg, caption: "Aktivitas pengenalan infrastruktur pertanian terintegrasi." },
+      { src: aboutImg, caption: "Praktik langsung di lahan bersama instruktur." },
+    ],
     content: [
       "Batch ke-12 dirancang sebagai program intensif yang menggabungkan teori ringkas dengan praktik langsung di lahan dan fasilitas pendukung. Peserta tidak hanya belajar budidaya, tetapi juga mengenal keselamatan kerja, pengelolaan input, dan komunikasi dengan pembeli.",
       "Kuota dibatasi agar setiap peserta mendapat bimbingan yang memadai dari instruktur lapangan. Kurikulum disusun berbasis kompetensi yang relevan dengan kebutuhan usaha tani kecil hingga menengah di wilayah sekitar.",
@@ -64,7 +89,11 @@ export const articles: Article[] = [
       "Pendekatan hibrida antara sensor irigasi dan praktik turun-temurun membantu menjaga produksi tetap stabil saat cuaca ekstrem.",
     category: "Innovation",
     date: "22 Feb 2026",
-    image: galleryImg,
+    image: hortiImg,
+    extraImages: [
+      { src: galleryImg, caption: "Pengamatan tanaman dan keputusan irigasi berbasis data dan pengalaman lapangan." },
+      { src: tropicalImg, caption: "Diversifikasi komoditas untuk mitigasi risiko iklim." },
+    ],
     content: [
       "Teknologi tidak menggantikan kearifan lokal; keduanya saling melengkapi. Contoh nyata adalah penjadwalan irigasi berdasarkan data kelembaban tanah yang tetap dikalibrasi dengan pengamatan petani terhadap musim dan pola angin setempat.",
       "Di kawasan budidaya kami, tim lapangan mendokumentasikan keputusan penting setiap musim sehingga pembelajaran tidak hilang ketika pergantian personel. Basis pengetahuan ini mempercepat adaptasi saat varietas atau input baru diperkenalkan.",
@@ -78,7 +107,11 @@ export const articles: Article[] = [
       "Memperpendek rantai pasok antara kebun dan konsumen akhir melalui kemitraan yang transparan dan saling menguntungkan.",
     category: "Partnership",
     date: "10 Feb 2026",
-    image: galleryImg,
+    image: tropicalImg,
+    extraImages: [
+      { src: livestockImg, caption: "Koordinasi pasokan dan standar mutu bersama mitra petani." },
+      { src: melonImg, caption: "Penyiapan komoditas segar untuk saluran distribusi." },
+    ],
     content: [
       "Distribusi produk segar membutuhkan sinkronisasi antara jadwal panen, kapasitas sortasi, dan jendela waktu pengiriman. Kemitraan jangka panjang dengan petani membantu perencanaan volume yang lebih dapat diprediksi.",
       "Skema harga dan insentif mutu disepakati di awal musim agar risiko fluktuasi dapat dikelola bersama. Transparansi grade dan penjelasan penolakan mutu mengurangi konflik dan memperkuat kepercayaan.",

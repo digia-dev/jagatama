@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { mainNavLinks } from "@/data/navLinks";
+import { whatsappContacts } from "@/data/whatsappContacts";
 
 const Footer = () => {
   return (
@@ -34,24 +35,17 @@ const Footer = () => {
           <div>
             <h4 className="mb-4 font-heading text-sm font-semibold uppercase tracking-widest text-primary-foreground/40">Hubungi</h4>
             <div className="space-y-2">
-              <a
-                href="https://wa.me/6285743855637"
-                className="block font-body text-sm text-primary-foreground/60 transition-colors hover:text-harvest"
-              >
-                +62 857-4385-5637 (Mudi)
-              </a>
-              <a
-                href="https://wa.me/6285946259796"
-                className="block font-body text-sm text-primary-foreground/60 transition-colors hover:text-harvest"
-              >
-                +62 859-4625-9796 (Muji)
-              </a>
-              <a
-                href="https://wa.me/6285659990002"
-                className="block font-body text-sm text-primary-foreground/60 transition-colors hover:text-harvest"
-              >
-                +62 856-5999-0002 (Kamal)
-              </a>
+              {whatsappContacts.map((c) => (
+                <a
+                  key={c.waId}
+                  href={`https://wa.me/${c.waId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block font-body text-sm text-primary-foreground/60 transition-colors hover:text-harvest"
+                >
+                  {c.phone} ({c.name})
+                </a>
+              ))}
             </div>
           </div>
         </div>
