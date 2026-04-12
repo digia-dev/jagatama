@@ -7,7 +7,7 @@ DROP TABLE IF EXISTS articles;
 DROP TABLE IF EXISTS product_variants;
 DROP TABLE IF EXISTS products;
 DROP TABLE IF EXISTS gallery_items;
-DROP TABLE IF EXISTS hero_content;
+DROP TABLE IF EXISTS hero_slides;
 DROP TABLE IF EXISTS admins;
 
 SET FOREIGN_KEY_CHECKS = 1;
@@ -22,9 +22,10 @@ CREATE TABLE admins (
 
 INSERT INTO admins (username, password_hash) VALUES ('admin', '$2y$10$YE2WNqcKfISNdJT7aIKDNOqY4VzbFi.JD5HoAaNJ.kbPgYRZMSpda');
 
-CREATE TABLE hero_content (
-  id TINYINT NOT NULL PRIMARY KEY,
-  image_url VARCHAR(1024) NOT NULL DEFAULT '',
+CREATE TABLE hero_slides (
+  id INT NOT NULL AUTO_INCREMENT,
+  image_url VARCHAR(1024) NOT NULL,
+  sort_order INT NOT NULL DEFAULT 0,
   eyebrow VARCHAR(512) NOT NULL DEFAULT '',
   headline_part1 VARCHAR(512) NOT NULL DEFAULT '',
   headline_highlight VARCHAR(256) NOT NULL DEFAULT '',
@@ -36,28 +37,21 @@ CREATE TABLE hero_content (
   secondary_cta_hash VARCHAR(128) NOT NULL DEFAULT '',
   footer_left VARCHAR(128) NOT NULL DEFAULT '',
   footer_right VARCHAR(128) NOT NULL DEFAULT '',
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_hero_slides_sort (sort_order)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO hero_content (id, image_url, eyebrow, headline_part1, headline_highlight, headline_part2, description_text, primary_cta_label, primary_cta_hash, secondary_cta_label, secondary_cta_hash, footer_left, footer_right) VALUES (
-  1,
-  'https://images.unsplash.com/photo-1530836369250-ef72a3f5cda8?w=1920&q=80',
-  'PT Jagasura Agrotama Indonesia · Hortikultura dan peternakan terintegrasi',
-  'Operasi agro terpadu: ',
-  'budidaya',
-  ', edukasi, dan nilai tambah berkelanjutan',
-  'Greenhouse dan hortikultura, MJ Farm, serta diklat dan magang—dijalankan secara teknis dan terukur.',
-  'Lihat Produk Kami',
-  'produk',
-  'Hubungi Kami',
-  'kontak',
-  'Jagasura Farm',
-  'MJ Farm'
-);
+INSERT INTO hero_slides (image_url, sort_order, eyebrow, headline_part1, headline_highlight, headline_part2, description_text, primary_cta_label, primary_cta_hash, secondary_cta_label, secondary_cta_hash, footer_left, footer_right) VALUES
+('https://images.unsplash.com/photo-1530836369250-ef72a3f5cda8?w=1920&q=80', 0, 'PT Jagasura Agrotama Indonesia · Hortikultura dan peternakan terintegrasi', 'Operasi agro terpadu: ', 'budidaya', ', edukasi, dan nilai tambah berkelanjutan', 'Greenhouse dan hortikultura, MJ Farm, serta diklat dan magang—dijalankan secara teknis dan terukur.', 'Lihat Produk Kami', 'produk', 'Hubungi Kami', 'kontak', 'Jagasura Farm', 'MJ Farm'),
+('https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=1920&q=80', 1, 'PT Jagasura Agrotama Indonesia · Hortikultura dan peternakan terintegrasi', 'Operasi agro terpadu: ', 'budidaya', ', edukasi, dan nilai tambah berkelanjutan', 'Greenhouse dan hortikultura, MJ Farm, serta diklat dan magang—dijalankan secara teknis dan terukur.', 'Lihat Produk Kami', 'produk', 'Hubungi Kami', 'kontak', 'Jagasura Farm', 'MJ Farm'),
+('https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=1920&q=80', 2, 'PT Jagasura Agrotama Indonesia · Hortikultura dan peternakan terintegrasi', 'Operasi agro terpadu: ', 'budidaya', ', edukasi, dan nilai tambah berkelanjutan', 'Greenhouse dan hortikultura, MJ Farm, serta diklat dan magang—dijalankan secara teknis dan terukur.', 'Lihat Produk Kami', 'produk', 'Hubungi Kami', 'kontak', 'Jagasura Farm', 'MJ Farm');
 
 CREATE TABLE products (
   id INT NOT NULL AUTO_INCREMENT,
   title VARCHAR(255) NOT NULL,
+  category VARCHAR(128) NOT NULL DEFAULT '',
   description TEXT,
   image_url VARCHAR(1024) NOT NULL DEFAULT '',
   price INT NOT NULL DEFAULT 0,
@@ -79,11 +73,11 @@ CREATE TABLE product_variants (
   CONSTRAINT fk_pv_product FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO products (title, description, image_url, price, price_note, sort_order) VALUES
-('Melon Premium', 'Dibudidayakan dalam greenhouse berteknologi tinggi dengan kualitas premium.', 'https://images.unsplash.com/photo-1599599810769-bcde5a160d32?w=1200&q=80', 85000, 'per kg', 1),
-('Buah Tropis', 'Komoditas buah tropis bernilai tinggi dari perkebunan terpadu.', 'https://images.unsplash.com/photo-1619566636858-adfe3c16a13b?w=1200&q=80', 45000, 'per kg', 2),
-('Hortikultura', 'Sayuran dan komoditas hortikultura dengan nilai ekonomi tinggi.', 'https://images.unsplash.com/photo-1592419047123-071b8e0f7e4d?w=1200&q=80', 25000, 'per kg', 3),
-('Usaha Ternak & RPH', 'Peternakan kambing dan rumah pemotongan hewan berstandar nasional dengan cold storage terintegrasi.', 'https://images.unsplash.com/photo-1500597377353-f2f23f0d8c1e?w=1200&q=80', 120000, 'estimasi per paket', 4);
+INSERT INTO products (title, category, description, image_url, price, price_note, sort_order) VALUES
+('Melon Premium', 'Buah', 'Dibudidayakan dalam greenhouse berteknologi tinggi dengan kualitas premium.', 'https://images.unsplash.com/photo-1599599810769-bcde5a160d32?w=1200&q=80', 85000, 'per kg', 1),
+('Buah Tropis', 'Buah', 'Komoditas buah tropis bernilai tinggi dari perkebunan terpadu.', 'https://images.unsplash.com/photo-1619566636858-adfe3c16a13b?w=1200&q=80', 45000, 'per kg', 2),
+('Hortikultura', 'Sayuran', 'Sayuran dan komoditas hortikultura dengan nilai ekonomi tinggi.', 'https://images.unsplash.com/photo-1592419047123-071b8e0f7e4d?w=1200&q=80', 25000, 'per kg', 3),
+('Usaha Ternak & RPH', 'Peternakan', 'Peternakan kambing dan rumah pemotongan hewan berstandar nasional dengan cold storage terintegrasi.', 'https://images.unsplash.com/photo-1500597377353-f2f23f0d8c1e?w=1200&q=80', 120000, 'estimasi per paket', 4);
 
 INSERT INTO product_variants (product_id, label, sort_order) VALUES
 (1, 'Fujisawa (Jepang)', 0), (1, 'Inthanon (Belanda)', 1), (1, 'Sweet Net (Thailand)', 2), (1, 'Chamoe (Korea)', 3), (1, 'Rangipo', 4),

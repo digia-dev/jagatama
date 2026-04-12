@@ -9,6 +9,7 @@ import Team from "./pages/Team.tsx";
 import Services from "./pages/Services.tsx";
 import Artikel from "./pages/Artikel.tsx";
 import ArticleDetail from "./pages/ArticleDetail.tsx";
+import Produk from "./pages/Produk.tsx";
 import ScrollToTop from "@/components/ScrollToTop.tsx";
 import { CartProvider } from "@/context/CartContext";
 import CartSheet from "@/components/CartSheet";
@@ -36,6 +37,7 @@ const App = () => (
             <Route path="/layanan" element={<Services />} />
             <Route path="/artikel" element={<Artikel />} />
             <Route path="/artikel/:slug" element={<ArticleDetail />} />
+            <Route path="/produk" element={<Produk />} />
             <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
             <Route path="/admin/login" element={<AdminLoginPage />} />
             <Route path="/admin/dashboard" element={<AdminDashboardLayout />}>

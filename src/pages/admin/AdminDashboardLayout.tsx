@@ -113,7 +113,7 @@ const AdminDashboardLayout = () => {
           </header>
 
           <main className="flex-1 p-4 md:p-6 lg:p-8">
-            <div className="mx-auto max-w-6xl">
+            <div className="mx-auto w-full max-w-[1400px]">
               <Outlet />
             </div>
           </main>

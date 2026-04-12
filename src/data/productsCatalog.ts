@@ -10,6 +10,7 @@ export type CatalogProduct = {
   image: string;
   price: number;
   priceNote?: string;
+  category?: string;
   items?: string[];
 };
 
@@ -17,6 +18,7 @@ export const productsCatalog: CatalogProduct[] = [
   {
     id: "melon-premium",
     title: "Melon Premium",
+    category: "Buah",
     description: "Dibudidayakan dalam greenhouse berteknologi tinggi dengan kualitas premium.",
     image: melonImg,
     price: 85000,
@@ -26,6 +28,7 @@ export const productsCatalog: CatalogProduct[] = [
   {
     id: "buah-tropis",
     title: "Buah Tropis",
+    category: "Buah",
     description: "Komoditas buah tropis bernilai tinggi dari perkebunan terpadu.",
     image: tropicalImg,
     price: 45000,
@@ -35,6 +38,7 @@ export const productsCatalog: CatalogProduct[] = [
   {
     id: "hortikultura",
     title: "Hortikultura",
+    category: "Sayuran",
     description: "Sayuran dan komoditas hortikultura dengan nilai ekonomi tinggi.",
     image: hortiImg,
     price: 25000,
@@ -44,6 +48,7 @@ export const productsCatalog: CatalogProduct[] = [
   {
     id: "ternak-rph",
     title: "Usaha Ternak & RPH",
+    category: "Peternakan",
     description: "Peternakan kambing dan rumah pemotongan hewan berstandar nasional dengan cold storage terintegrasi.",
     image: livestockImg,
     price: 120000,

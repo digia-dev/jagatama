@@ -7,7 +7,7 @@ export const mainNavLinks: NavItem[] = [
   { label: "Tentang Kami", to: { pathname: "/", hash: "tentang" } },
   { label: "Tim Kami", to: "/tim" },
   { label: "Layanan", to: "/layanan" },
-  { label: "Produk", to: { pathname: "/", hash: "produk" } },
+  { label: "Produk", to: "/produk" },
   { label: "Artikel", to: "/artikel" },
   { label: "Gallery", to: { pathname: "/", hash: "gallery" } },
   { label: "Kontak", to: { pathname: "/", hash: "kontak" } },

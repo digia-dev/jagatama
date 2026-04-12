@@ -3,7 +3,7 @@
 require_once __DIR__ . '/api_bootstrap.php';
 
 function products_read_all($db) {
-    $stmt = $db->query('SELECT id, title, description, image_url, price, price_note, sort_order, created_at, updated_at FROM products ORDER BY sort_order ASC, id ASC');
+    $stmt = $db->query('SELECT id, title, category, description, image_url, price, price_note, sort_order, created_at, updated_at FROM products ORDER BY sort_order ASC, id ASC');
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
     foreach ($rows as &$row) {
         $pid = (int) $row['id'];
@@ -15,7 +15,7 @@ function products_read_all($db) {
 }
 
 function products_read_one($db, $id) {
-    $stmt = $db->prepare('SELECT id, title, description, image_url, price, price_note, sort_order, created_at, updated_at FROM products WHERE id = ? LIMIT 1');
+    $stmt = $db->prepare('SELECT id, title, category, description, image_url, price, price_note, sort_order, created_at, updated_at FROM products WHERE id = ? LIMIT 1');
     $stmt->execute([$id]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
     if (!$row) {
@@ -92,6 +92,7 @@ try {
                 break;
             }
             $title = trim((string) $data->title);
+            $category = isset($data->category) ? trim((string) $data->category) : '';
             $description = isset($data->description) ? (string) $data->description : '';
             $image_url = isset($data->image_url) ? (string) $data->image_url : '';
             $price = isset($data->price) ? (int) $data->price : 0;
@@ -99,8 +100,8 @@ try {
             $sort_order = isset($data->sort_order) ? (int) $data->sort_order : 0;
             $variants = isset($data->variants) ? $data->variants : [];
 
-            $stmt = $db->prepare('INSERT INTO products (title, description, image_url, price, price_note, sort_order, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())');
-            $stmt->execute([$title, $description, $image_url, $price, $price_note, $sort_order]);
+            $stmt = $db->prepare('INSERT INTO products (title, category, description, image_url, price, price_note, sort_order, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())');
+            $stmt->execute([$title, $category, $description, $image_url, $price, $price_note, $sort_order]);
             $newId = (int) $db->lastInsertId();
             products_replace_variants($db, $newId, $variants);
 
@@ -126,6 +127,7 @@ try {
                 break;
             }
             $title = trim((string) $data->title);
+            $category = isset($data->category) ? trim((string) $data->category) : '';
             $description = isset($data->description) ? (string) $data->description : '';
             $image_url = isset($data->image_url) ? (string) $data->image_url : '';
             $price = isset($data->price) ? (int) $data->price : 0;
@@ -133,8 +135,8 @@ try {
             $sort_order = isset($data->sort_order) ? (int) $data->sort_order : 0;
             $variants = isset($data->variants) ? $data->variants : [];
 
-            $stmt = $db->prepare('UPDATE products SET title = ?, description = ?, image_url = ?, price = ?, price_note = ?, sort_order = ?, updated_at = NOW() WHERE id = ?');
-            $stmt->execute([$title, $description, $image_url, $price, $price_note, $sort_order, $id]);
+            $stmt = $db->prepare('UPDATE products SET title = ?, category = ?, description = ?, image_url = ?, price = ?, price_note = ?, sort_order = ?, updated_at = NOW() WHERE id = ?');
+            $stmt->execute([$title, $category, $description, $image_url, $price, $price_note, $sort_order, $id]);
 
             products_replace_variants($db, $id, $variants);
 

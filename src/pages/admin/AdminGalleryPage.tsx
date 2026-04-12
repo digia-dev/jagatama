@@ -136,28 +136,36 @@ const AdminGalleryPage = () => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-20">Pratinjau</TableHead>
-              <TableHead>Alt</TableHead>
-              <TableHead className="hidden sm:table-cell">Urutan</TableHead>
-              <TableHead className="text-right">Aksi</TableHead>
+              <TableHead className="w-[108px] min-w-[96px]">Gambar</TableHead>
+              <TableHead className="min-w-[120px]">Alt</TableHead>
+              <TableHead className="hidden min-w-[200px] max-w-[320px] md:table-cell">URL</TableHead>
+              <TableHead className="w-[72px]">Urut</TableHead>
+              <TableHead className="w-[72px]">Tinggi</TableHead>
+              <TableHead className="w-[1%] whitespace-nowrap text-right">Aksi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isPending ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-muted-foreground">
+                <TableCell colSpan={6} className="text-muted-foreground">
                   Memuat…
                 </TableCell>
               </TableRow>
             ) : rows?.length ? (
               rows.map((g) => (
                 <TableRow key={g.id}>
-                  <TableCell>
-                    <img src={g.image_url} alt="" className="h-14 w-20 rounded object-cover" />
+                  <TableCell className="align-middle">
+                    <img src={g.image_url} alt="" className="h-16 w-[96px] rounded-md border border-border/60 object-cover" />
                   </TableCell>
-                  <TableCell className="max-w-[140px] truncate text-sm md:max-w-xs">{g.alt_text || "—"}</TableCell>
-                  <TableCell className="hidden sm:table-cell">{g.sort_order}</TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="max-w-[200px] align-middle text-sm lg:max-w-xs">
+                    <span className="line-clamp-2">{g.alt_text || "—"}</span>
+                  </TableCell>
+                  <TableCell className="hidden max-w-[320px] align-middle md:table-cell">
+                    <span className="line-clamp-1 font-mono text-xs text-muted-foreground">{g.image_url}</span>
+                  </TableCell>
+                  <TableCell className="align-middle tabular-nums">{g.sort_order}</TableCell>
+                  <TableCell className="align-middle text-sm">{g.is_tall === 1 ? "Ya" : "Tidak"}</TableCell>
+                  <TableCell className="whitespace-nowrap text-right align-middle">
                     <Button type="button" variant="outline" size="sm" className="mr-2" onClick={() => openEdit(g)}>
                       Ubah
                     </Button>
@@ -169,7 +177,7 @@ const AdminGalleryPage = () => {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={4} className="text-muted-foreground">
+                <TableCell colSpan={6} className="text-muted-foreground">
                   Galeri kosong.
                 </TableCell>
               </TableRow>

@@ -4,6 +4,7 @@ import { useCart } from "@/context/CartContext";
 import { whatsappContacts } from "@/data/whatsappContacts";
 import { formatIdr } from "@/data/productsCatalog";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -27,7 +28,8 @@ import { toast } from "@/components/ui/sonner";
 function buildWhatsAppBody(
   lines: { title: string; unitPrice: number; qty: number }[],
   subtotal: number,
-  address: string,
+  recipientName: string,
+  shippingAddress: string,
 ) {
   const header = "Halo, saya ingin memesan produk berikut:\n\n";
   const items = lines
@@ -36,7 +38,7 @@ function buildWhatsAppBody(
         `• ${l.title} × ${l.qty} @ ${formatIdr(l.unitPrice)} → ${formatIdr(l.unitPrice * l.qty)}`,
     )
     .join("\n");
-  const footer = `\n\nSubtotal: ${formatIdr(subtotal)}\n\nAlamat pengiriman:\n${address.trim()}\n\nMohon konfirmasi ketersediaan dan ongkir. Terima kasih.`;
+  const footer = `\n\nSubtotal: ${formatIdr(subtotal)}\n\nNama penerima:\n${recipientName.trim()}\n\nAlamat pengiriman:\n${shippingAddress.trim()}\n\nMohon konfirmasi ketersediaan dan ongkir. Terima kasih.`;
   return header + items + footer;
 }
 
@@ -52,7 +54,8 @@ const CartSheet = () => {
     subtotal,
     itemCount,
   } = useCart();
-  const [address, setAddress] = useState("");
+  const [recipientName, setRecipientName] = useState("");
+  const [shippingAddress, setShippingAddress] = useState("");
   const [adminWaId, setAdminWaId] = useState(whatsappContacts[0].waId);
 
   const submitWhatsApp = () => {
@@ -60,11 +63,15 @@ const CartSheet = () => {
       toast.error("Keranjang masih kosong.");
       return;
     }
-    if (!address.trim()) {
+    if (!recipientName.trim()) {
+      toast.error("Mohon isi nama penerima.");
+      return;
+    }
+    if (!shippingAddress.trim()) {
       toast.error("Mohon isi alamat pengiriman.");
       return;
     }
-    const body = buildWhatsAppBody(lines, subtotal, address);
+    const body = buildWhatsAppBody(lines, subtotal, recipientName, shippingAddress);
     const url = `https://wa.me/${adminWaId}?text=${encodeURIComponent(body)}`;
     window.open(url, "_blank", "noopener,noreferrer");
     setCartOpen(false);
@@ -153,16 +160,28 @@ const CartSheet = () => {
             <span className="text-lg font-semibold tabular-nums text-foreground">{formatIdr(subtotal)}</span>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="cart-address">Alamat pengiriman</Label>
-            <Textarea
-              id="cart-address"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              placeholder="Nama penerima, jalan, RT/RW, kecamatan, kota, kode pos"
-              className="min-h-[100px] resize-y"
-              autoComplete="street-address"
-            />
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2 sm:col-span-1">
+              <Label htmlFor="cart-name">Nama penerima</Label>
+              <Input
+                id="cart-name"
+                value={recipientName}
+                onChange={(e) => setRecipientName(e.target.value)}
+                placeholder="Nama lengkap"
+                autoComplete="name"
+              />
+            </div>
+            <div className="space-y-2 sm:col-span-1">
+              <Label htmlFor="cart-address">Alamat pengiriman</Label>
+              <Textarea
+                id="cart-address"
+                value={shippingAddress}
+                onChange={(e) => setShippingAddress(e.target.value)}
+                placeholder="Jalan, RT/RW, kecamatan, kota, kode pos"
+                className="min-h-[100px] resize-y sm:min-h-[120px]"
+                autoComplete="street-address"
+              />
+            </div>
           </div>
 
           <div className="space-y-2">

@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Search } from "lucide-react";
 import { cmsFetch, cmsUploadFile } from "@/lib/cmsApi";
 import type { ArticleFullApi, ArticleSummaryApi } from "@/hooks/useCmsQueries";
+import { filterArticleSummaries, uniqueArticleCategories } from "@/lib/filterCatalogProducts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,6 +26,13 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Table,
   TableBody,
   TableCell,
@@ -33,6 +42,8 @@ import {
 } from "@/components/ui/table";
 import { toast } from "@/components/ui/sonner";
 
+const ALL = "__all__";
+
 type ExtraRow = { image_url: string; caption: string };
 
 const AdminArticlesPage = () => {
@@ -41,6 +52,16 @@ const AdminArticlesPage = () => {
     queryKey: ["cms", "articles", "admin"],
     queryFn: () => cmsFetch("articles.php") as Promise<ArticleSummaryApi[]>,
   });
+
+  const [search, setSearch] = useState("");
+  const [filterCategory, setFilterCategory] = useState(ALL);
+
+  const categories = useMemo(() => uniqueArticleCategories(list ?? []), [list]);
+
+  const filtered = useMemo(() => {
+    const cat = filterCategory === ALL ? "" : filterCategory;
+    return filterArticleSummaries(list ?? [], search, cat);
+  }, [list, search, filterCategory]);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -191,6 +212,8 @@ const AdminArticlesPage = () => {
     }
   };
 
+  const colCount = 6;
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -200,28 +223,77 @@ const AdminArticlesPage = () => {
         </Button>
       </div>
 
+      <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end">
+        <div className="min-w-0 flex-1 space-y-2 sm:min-w-[200px]">
+          <Label htmlFor="admin-artikel-cari">Cari</Label>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
+            <Input
+              id="admin-artikel-cari"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Judul, slug, ringkasan, kategori…"
+              className="border-border bg-background pl-9"
+              autoComplete="off"
+            />
+          </div>
+        </div>
+        <div className="w-full space-y-2 sm:w-52 md:w-60">
+          <Label htmlFor="admin-artikel-kategori">Kategori</Label>
+          <Select value={filterCategory} onValueChange={setFilterCategory}>
+            <SelectTrigger id="admin-artikel-kategori" className="border-border bg-background">
+              <SelectValue placeholder="Semua" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL}>Semua kategori</SelectItem>
+              {categories.map((c) => (
+                <SelectItem key={c} value={c}>
+                  {c}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
       <div className="overflow-x-auto rounded-lg border border-border bg-card">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Judul</TableHead>
-              <TableHead className="hidden md:table-cell">Slug</TableHead>
-              <TableHead className="text-right">Aksi</TableHead>
+              <TableHead className="w-[100px] min-w-[88px]">Gambar</TableHead>
+              <TableHead className="min-w-[180px]">Judul</TableHead>
+              <TableHead className="hidden min-w-[100px] lg:table-cell">Kategori</TableHead>
+              <TableHead className="hidden min-w-[110px] md:table-cell">Tanggal</TableHead>
+              <TableHead className="hidden min-w-[140px] xl:table-cell">Slug</TableHead>
+              <TableHead className="w-[1%] whitespace-nowrap text-right">Aksi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isPending ? (
               <TableRow>
-                <TableCell colSpan={3} className="text-muted-foreground">
+                <TableCell colSpan={colCount} className="text-muted-foreground">
                   Memuat…
                 </TableCell>
               </TableRow>
-            ) : list?.length ? (
-              list.map((a) => (
+            ) : filtered.length ? (
+              filtered.map((a) => (
                 <TableRow key={a.id}>
-                  <TableCell className="max-w-[200px] font-medium md:max-w-none">{a.title}</TableCell>
-                  <TableCell className="hidden max-w-xs truncate text-muted-foreground md:table-cell">{a.slug}</TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="align-middle">
+                    {a.image_url ? (
+                      <img src={a.image_url} alt="" className="h-14 w-[88px] rounded-md border border-border/60 object-cover" />
+                    ) : (
+                      <div className="flex h-14 w-[88px] items-center justify-center rounded-md border border-dashed border-border bg-muted/50 text-[10px] text-muted-foreground">
+                        —
+                      </div>
+                    )}
+                  </TableCell>
+                  <TableCell className="max-w-[300px] align-middle font-medium lg:max-w-md xl:max-w-lg">
+                    <span className="line-clamp-2">{a.title}</span>
+                  </TableCell>
+                  <TableCell className="hidden align-middle text-muted-foreground lg:table-cell">{a.category || "—"}</TableCell>
+                  <TableCell className="hidden align-middle text-sm text-muted-foreground md:table-cell">{a.date_display || "—"}</TableCell>
+                  <TableCell className="hidden max-w-[220px] truncate align-middle font-mono text-xs text-muted-foreground xl:table-cell">{a.slug}</TableCell>
+                  <TableCell className="whitespace-nowrap text-right align-middle">
                     <Button type="button" variant="outline" size="sm" className="mr-2" onClick={() => openEdit(a.id)} disabled={loadingFull}>
                       Ubah
                     </Button>
@@ -233,8 +305,8 @@ const AdminArticlesPage = () => {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={3} className="text-muted-foreground">
-                  Belum ada artikel.
+                <TableCell colSpan={colCount} className="text-muted-foreground">
+                  {list?.length ? "Tidak ada artikel yang cocok dengan filter." : "Belum ada artikel."}
                 </TableCell>
               </TableRow>
             )}

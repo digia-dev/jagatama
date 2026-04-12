@@ -16,7 +16,7 @@ DELETE FROM articles;
 DELETE FROM product_variants;
 DELETE FROM products;
 DELETE FROM gallery_items;
-DELETE FROM hero_content;
+DELETE FROM hero_slides;
 DELETE FROM admins;
 SET FOREIGN_KEY_CHECKS = 1;
 
@@ -26,31 +26,21 @@ ALTER TABLE articles AUTO_INCREMENT = 1;
 ALTER TABLE article_paragraphs AUTO_INCREMENT = 1;
 ALTER TABLE article_extra_images AUTO_INCREMENT = 1;
 ALTER TABLE gallery_items AUTO_INCREMENT = 1;
+ALTER TABLE hero_slides AUTO_INCREMENT = 1;
 ALTER TABLE admins AUTO_INCREMENT = 1;
 
 INSERT INTO admins (username, password_hash) VALUES ('admin', '$2y$10$YE2WNqcKfISNdJT7aIKDNOqY4VzbFi.JD5HoAaNJ.kbPgYRZMSpda');
 
-INSERT INTO hero_content (id, image_url, eyebrow, headline_part1, headline_highlight, headline_part2, description_text, primary_cta_label, primary_cta_hash, secondary_cta_label, secondary_cta_hash, footer_left, footer_right) VALUES (
-  1,
-  @img_hero,
-  'PT Jagasura Agrotama Indonesia · Hortikultura dan peternakan terintegrasi',
-  'Operasi agro terpadu: ',
-  'budidaya',
-  ', edukasi, dan nilai tambah berkelanjutan',
-  'Greenhouse dan hortikultura, MJ Farm, serta diklat dan magang—dijalankan secara teknis dan terukur.',
-  'Lihat Produk Kami',
-  'produk',
-  'Hubungi Kami',
-  'kontak',
-  'Jagasura Farm',
-  'MJ Farm'
-);
+INSERT INTO hero_slides (image_url, sort_order, eyebrow, headline_part1, headline_highlight, headline_part2, description_text, primary_cta_label, primary_cta_hash, secondary_cta_label, secondary_cta_hash, footer_left, footer_right) VALUES
+(@img_hero, 0, 'PT Jagasura Agrotama Indonesia · Hortikultura dan peternakan terintegrasi', 'Operasi agro terpadu: ', 'budidaya', ', edukasi, dan nilai tambah berkelanjutan', 'Greenhouse dan hortikultura, MJ Farm, serta diklat dan magang—dijalankan secara teknis dan terukur.', 'Lihat Produk Kami', 'produk', 'Hubungi Kami', 'kontak', 'Jagasura Farm', 'MJ Farm'),
+(@img_about, 1, 'PT Jagasura Agrotama Indonesia · Hortikultura dan peternakan terintegrasi', 'Operasi agro terpadu: ', 'budidaya', ', edukasi, dan nilai tambah berkelanjutan', 'Greenhouse dan hortikultura, MJ Farm, serta diklat dan magang—dijalankan secara teknis dan terukur.', 'Lihat Produk Kami', 'produk', 'Hubungi Kami', 'kontak', 'Jagasura Farm', 'MJ Farm'),
+(@img_horti, 2, 'PT Jagasura Agrotama Indonesia · Hortikultura dan peternakan terintegrasi', 'Operasi agro terpadu: ', 'budidaya', ', edukasi, dan nilai tambah berkelanjutan', 'Greenhouse dan hortikultura, MJ Farm, serta diklat dan magang—dijalankan secara teknis dan terukur.', 'Lihat Produk Kami', 'produk', 'Hubungi Kami', 'kontak', 'Jagasura Farm', 'MJ Farm');
 
-INSERT INTO products (title, description, image_url, price, price_note, sort_order) VALUES
-('Melon Premium', 'Dibudidayakan dalam greenhouse berteknologi tinggi dengan kualitas premium.', @img_melon, 85000, 'per kg', 1),
-('Buah Tropis', 'Komoditas buah tropis bernilai tinggi dari perkebunan terpadu.', @img_tropical, 45000, 'per kg', 2),
-('Hortikultura', 'Sayuran dan komoditas hortikultura dengan nilai ekonomi tinggi.', @img_horti, 25000, 'per kg', 3),
-('Usaha Ternak & RPH', 'Peternakan kambing dan rumah pemotongan hewan berstandar nasional dengan cold storage terintegrasi.', @img_livestock, 120000, 'estimasi per paket', 4);
+INSERT INTO products (title, category, description, image_url, price, price_note, sort_order) VALUES
+('Melon Premium', 'Buah', 'Dibudidayakan dalam greenhouse berteknologi tinggi dengan kualitas premium.', @img_melon, 85000, 'per kg', 1),
+('Buah Tropis', 'Buah', 'Komoditas buah tropis bernilai tinggi dari perkebunan terpadu.', @img_tropical, 45000, 'per kg', 2),
+('Hortikultura', 'Sayuran', 'Sayuran dan komoditas hortikultura dengan nilai ekonomi tinggi.', @img_horti, 25000, 'per kg', 3),
+('Usaha Ternak & RPH', 'Peternakan', 'Peternakan kambing dan rumah pemotongan hewan berstandar nasional dengan cold storage terintegrasi.', @img_livestock, 120000, 'estimasi per paket', 4);
 
 INSERT INTO product_variants (product_id, label, sort_order) VALUES
 (1, 'Fujisawa (Jepang)', 0), (1, 'Inthanon (Belanda)', 1), (1, 'Sweet Net (Thailand)', 2), (1, 'Chamoe (Korea)', 3), (1, 'Rangipo', 4),

@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Search } from "lucide-react";
 import { cmsFetch, cmsUploadFile } from "@/lib/cmsApi";
 import type { ProductApiRow } from "@/hooks/useCmsQueries";
+import { filterProductApiRows, uniqueCategoriesFromProductRows } from "@/lib/filterCatalogProducts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,6 +26,13 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Table,
   TableBody,
   TableCell,
@@ -34,8 +43,11 @@ import {
 import { toast } from "@/components/ui/sonner";
 import { formatIdr } from "@/data/productsCatalog";
 
+const ALL = "__all__";
+
 const emptyForm = (): Partial<ProductApiRow> & { variantsText: string } => ({
   title: "",
+  category: "",
   description: "",
   image_url: "",
   price: 0,
@@ -51,11 +63,20 @@ const AdminProductsPage = () => {
     queryFn: () => cmsFetch("products.php") as Promise<ProductApiRow[]>,
   });
 
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState(ALL);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [form, setForm] = useState(emptyForm());
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [uploading, setUploading] = useState(false);
+
+  const categories = useMemo(() => uniqueCategoriesFromProductRows(rows ?? []), [rows]);
+
+  const filtered = useMemo(() => {
+    const cat = category === ALL ? "" : category;
+    return filterProductApiRows(rows ?? [], search, cat);
+  }, [rows, search, category]);
 
   const openAdd = () => {
     setEditingId(null);
@@ -67,6 +88,7 @@ const AdminProductsPage = () => {
     setEditingId(p.id);
     setForm({
       title: p.title,
+      category: p.category ?? "",
       description: p.description,
       image_url: p.image_url,
       price: p.price,
@@ -90,6 +112,7 @@ const AdminProductsPage = () => {
     mutationFn: async () => {
       const body = {
         title: form.title,
+        category: form.category ?? "",
         description: form.description ?? "",
         image_url: form.image_url ?? "",
         price: Number(form.price) || 0,
@@ -146,6 +169,8 @@ const AdminProductsPage = () => {
     }
   };
 
+  const colCount = 7;
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -155,30 +180,84 @@ const AdminProductsPage = () => {
         </Button>
       </div>
 
+      <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end">
+        <div className="min-w-0 flex-1 space-y-2 sm:min-w-[200px]">
+          <Label htmlFor="admin-produk-cari">Cari</Label>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
+            <Input
+              id="admin-produk-cari"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Judul, deskripsi, kategori…"
+              className="border-border bg-background pl-9"
+              autoComplete="off"
+            />
+          </div>
+        </div>
+        <div className="w-full space-y-2 sm:w-52 md:w-60">
+          <Label htmlFor="admin-produk-kategori">Kategori</Label>
+          <Select value={category} onValueChange={setCategory}>
+            <SelectTrigger id="admin-produk-kategori" className="border-border bg-background">
+              <SelectValue placeholder="Semua" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL}>Semua kategori</SelectItem>
+              {categories.map((c) => (
+                <SelectItem key={c} value={c}>
+                  {c}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
       <div className="overflow-x-auto rounded-lg border border-border bg-card">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Judul</TableHead>
-              <TableHead className="hidden sm:table-cell">Harga</TableHead>
-              <TableHead className="text-right">Aksi</TableHead>
+              <TableHead className="w-[100px] min-w-[88px]">Gambar</TableHead>
+              <TableHead className="min-w-[160px]">Judul</TableHead>
+              <TableHead className="hidden min-w-[100px] lg:table-cell">Kategori</TableHead>
+              <TableHead className="hidden min-w-[140px] md:table-cell">Harga</TableHead>
+              <TableHead className="hidden w-[72px] sm:table-cell">Urut</TableHead>
+              <TableHead className="hidden min-w-[80px] xl:table-cell">Varian</TableHead>
+              <TableHead className="w-[1%] whitespace-nowrap text-right">Aksi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isPending ? (
               <TableRow>
-                <TableCell colSpan={3} className="text-muted-foreground">
+                <TableCell colSpan={colCount} className="text-muted-foreground">
                   Memuat…
                 </TableCell>
               </TableRow>
-            ) : rows?.length ? (
-              rows.map((p) => (
+            ) : filtered.length ? (
+              filtered.map((p) => (
                 <TableRow key={p.id}>
-                  <TableCell className="font-medium">{p.title}</TableCell>
-                  <TableCell className="hidden sm:table-cell">
-                    {formatIdr(p.price)} {p.price_note ? `· ${p.price_note}` : ""}
+                  <TableCell className="align-middle">
+                    {p.image_url ? (
+                      <img src={p.image_url} alt="" className="h-14 w-[88px] rounded-md border border-border/60 object-cover" />
+                    ) : (
+                      <div className="flex h-14 w-[88px] items-center justify-center rounded-md border border-dashed border-border bg-muted/50 text-[10px] text-muted-foreground">
+                        —
+                      </div>
+                    )}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="max-w-[280px] align-middle font-medium lg:max-w-md xl:max-w-lg">
+                    <span className="line-clamp-2">{p.title}</span>
+                  </TableCell>
+                  <TableCell className="hidden align-middle text-muted-foreground lg:table-cell">{p.category || "—"}</TableCell>
+                  <TableCell className="hidden align-middle text-sm tabular-nums md:table-cell">
+                    {formatIdr(p.price)}
+                    {p.price_note ? <span className="mt-0.5 block text-xs font-normal text-muted-foreground">{p.price_note}</span> : null}
+                  </TableCell>
+                  <TableCell className="hidden align-middle tabular-nums sm:table-cell">{p.sort_order}</TableCell>
+                  <TableCell className="hidden align-middle text-sm text-muted-foreground xl:table-cell">
+                    {p.variants?.length ? `${p.variants.length} item` : "—"}
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap text-right align-middle">
                     <Button type="button" variant="outline" size="sm" className="mr-2" onClick={() => openEdit(p)}>
                       Ubah
                     </Button>
@@ -190,8 +269,8 @@ const AdminProductsPage = () => {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={3} className="text-muted-foreground">
-                  Belum ada produk.
+                <TableCell colSpan={colCount} className="text-muted-foreground">
+                  {rows?.length ? "Tidak ada produk yang cocok dengan filter." : "Belum ada produk."}
                 </TableCell>
               </TableRow>
             )}
@@ -208,6 +287,14 @@ const AdminProductsPage = () => {
             <div className="space-y-2">
               <Label>Judul</Label>
               <Input value={form.title ?? ""} onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))} />
+            </div>
+            <div className="space-y-2">
+              <Label>Kategori</Label>
+              <Input
+                value={form.category ?? ""}
+                onChange={(e) => setForm((p) => ({ ...p, category: e.target.value }))}
+                placeholder="Mis. Buah, Sayuran, Peternakan"
+              />
             </div>
             <div className="space-y-2">
               <Label>Deskripsi</Label>
