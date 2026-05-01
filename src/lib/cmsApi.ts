@@ -11,7 +11,7 @@ export function getCmsBaseUrl() {
   if (isLocal) {
     return `http://${h}:8000`;
   }
-  return "https://fire.vadr.my.id/jagatama";
+  return "https://jagatama.id";
 }
 
 export function getAdminToken() {
