@@ -9,20 +9,30 @@ import {
 
 export type CartLine = {
   productId: string;
+  variantId?: string;
+  variantLabel?: string;
   title: string;
   unitPrice: number;
   qty: number;
 };
 
+type AddProductArgs = {
+  id: string;
+  title: string;
+  unitPrice: number;
+  variantId?: string;
+  variantLabel?: string;
+};
+
 type CartContextValue = {
   lines: CartLine[];
-  addProduct: (product: { id: string; title: string; unitPrice: number }, delta?: number) => void;
-  setProductQty: (productId: string, qty: number) => void;
-  increment: (productId: string) => void;
-  decrement: (productId: string) => void;
-  removeProduct: (productId: string) => void;
+  addProduct: (product: AddProductArgs, delta?: number) => void;
+  setProductQty: (productId: string, qty: number, variantId?: string) => void;
+  increment: (productId: string, variantId?: string) => void;
+  decrement: (productId: string, variantId?: string) => void;
+  removeProduct: (productId: string, variantId?: string) => void;
   clearCart: () => void;
-  getQty: (productId: string) => number;
+  getQty: (productId: string, variantId?: string) => number;
   itemCount: number;
   subtotal: number;
   cartOpen: boolean;
@@ -36,12 +46,22 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [cartOpen, setCartOpen] = useState(false);
 
   const addProduct = useCallback(
-    (product: { id: string; title: string; unitPrice: number }, delta = 1) => {
+    (product: AddProductArgs, delta = 1) => {
       const n = Math.max(1, Math.floor(delta));
       setLines((prev) => {
-        const i = prev.findIndex((l) => l.productId === product.id);
+        const i = prev.findIndex((l) => l.productId === product.id && l.variantId === product.variantId);
         if (i === -1) {
-          return [...prev, { productId: product.id, title: product.title, unitPrice: product.unitPrice, qty: n }];
+          return [
+            ...prev,
+            {
+              productId: product.id,
+              variantId: product.variantId,
+              variantLabel: product.variantLabel,
+              title: product.title,
+              unitPrice: product.unitPrice,
+              qty: n,
+            },
+          ];
         }
         const next = [...prev];
         next[i] = { ...next[i], qty: next[i].qty + n };
@@ -51,14 +71,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
     [],
   );
 
-  const setProductQty = useCallback((productId: string, qty: number) => {
+  const setProductQty = useCallback((productId: string, qty: number, variantId?: string) => {
     const q = Math.floor(qty);
     if (q <= 0) {
-      setLines((prev) => prev.filter((l) => l.productId !== productId));
+      setLines((prev) => prev.filter((l) => !(l.productId === productId && l.variantId === variantId)));
       return;
     }
     setLines((prev) => {
-      const i = prev.findIndex((l) => l.productId === productId);
+      const i = prev.findIndex((l) => l.productId === productId && l.variantId === variantId);
       if (i === -1) return prev;
       const next = [...prev];
       next[i] = { ...next[i], qty: q };
@@ -66,9 +86,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const increment = useCallback((productId: string) => {
+  const increment = useCallback((productId: string, variantId?: string) => {
     setLines((prev) => {
-      const i = prev.findIndex((l) => l.productId === productId);
+      const i = prev.findIndex((l) => l.productId === productId && l.variantId === variantId);
       if (i === -1) return prev;
       const next = [...prev];
       next[i] = { ...next[i], qty: next[i].qty + 1 };
@@ -76,26 +96,27 @@ export function CartProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
-  const decrement = useCallback((productId: string) => {
+  const decrement = useCallback((productId: string, variantId?: string) => {
     setLines((prev) => {
-      const i = prev.findIndex((l) => l.productId === productId);
+      const i = prev.findIndex((l) => l.productId === productId && l.variantId === variantId);
       if (i === -1) return prev;
       const q = prev[i].qty - 1;
-      if (q <= 0) return prev.filter((l) => l.productId !== productId);
+      if (q <= 0) return prev.filter((l) => !(l.productId === productId && l.variantId === variantId));
       const next = [...prev];
       next[i] = { ...next[i], qty: q };
       return next;
     });
   }, []);
 
-  const removeProduct = useCallback((productId: string) => {
-    setLines((prev) => prev.filter((l) => l.productId !== productId));
+  const removeProduct = useCallback((productId: string, variantId?: string) => {
+    setLines((prev) => prev.filter((l) => !(l.productId === productId && l.variantId === variantId)));
   }, []);
 
   const clearCart = useCallback(() => setLines([]), []);
 
   const getQty = useCallback(
-    (productId: string) => lines.find((l) => l.productId === productId)?.qty ?? 0,
+    (productId: string, variantId?: string) =>
+      lines.find((l) => l.productId === productId && l.variantId === variantId)?.qty ?? 0,
     [lines],
   );
 

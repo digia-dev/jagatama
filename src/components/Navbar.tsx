@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Menu, ShoppingCart, X } from "lucide-react";
 import { mainNavLinks } from "@/data/navLinks";
 import { useCart } from "@/context/CartContext";
+import { useSettingsCms } from "@/hooks/useCmsQueries";
 
 const Navbar = () => {
   const { pathname } = useLocation();
@@ -10,6 +11,7 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const { itemCount, setCartOpen } = useCart();
+  const { data: settings } = useSettingsCms();
   const solidNav = scrolled || !isHome;
 
   useEffect(() => {
@@ -27,18 +29,31 @@ const Navbar = () => {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6">
         <Link to="/" className="flex items-center gap-3 py-2">
           <img
-            src="/logotp.png"
-            alt="PT Jagasura Agrotama Indonesia"
+            src={settings?.logo_url || "/logotp.png"}
+            alt={settings?.brand_name || "PT Jagasura Agrotama Indonesia"}
             className="h-12 w-auto shrink-0 object-contain"
             width={48}
             height={48}
           />
-          <div
-            className={`font-heading text-xl font-bold tracking-tight transition-colors duration-300 ${
-              solidNav ? "text-foreground" : "text-primary-foreground"
-            }`}
-          >
-            <span className="text-harvest">Jagasura</span> Agrotama
+          <div className="flex flex-col">
+            <div
+              className={`font-heading text-lg sm:text-xl font-bold tracking-tight transition-colors duration-300 ${
+                solidNav ? "text-foreground" : "text-primary-foreground"
+              }`}
+            >
+              {settings?.brand_name || (
+                <>
+                  <span className="text-harvest">Jagasura</span> Agrotama
+                </>
+              )}
+            </div>
+            <div
+              className={`text-[10px] sm:text-xs font-medium tracking-wide transition-colors duration-300 ${
+                solidNav ? "text-muted-foreground" : "text-primary-foreground/80"
+              }`}
+            >
+              {settings?.tagline || "Sustainable Agriculture"}
+            </div>
           </div>
         </Link>
 
@@ -86,7 +101,7 @@ const Navbar = () => {
       </div>
 
       {open && (
-        <div className="border-t border-border bg-background/98 backdrop-blur-lg lg:hidden">
+        <div className="border-t border-border bg-background shadow-xl lg:hidden">
           <div className="flex flex-col gap-4 px-6 py-6">
             {mainNavLinks.map((link) => (
               <Link

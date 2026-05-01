@@ -5,6 +5,12 @@ export function getCmsBaseUrl() {
   if (v && typeof v === "string" && v.length > 0) {
     return v.replace(/\/$/, "");
   }
+  // Default fallback
+  const h = window.location.hostname;
+  const isLocal = h === "localhost" || h === "127.0.0.1" || h.startsWith("192.168.") || h.startsWith("10.") || h.startsWith("0.0.0.0");
+  if (isLocal) {
+    return `http://${h}:8000`;
+  }
   return "https://fire.vadr.my.id/jagatama";
 }
 

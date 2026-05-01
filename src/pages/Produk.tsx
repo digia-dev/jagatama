@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
@@ -13,15 +13,18 @@ import type { CatalogProduct } from "@/data/productsCatalog";
 import { useProductsCatalogMerged } from "@/hooks/useCmsQueries";
 import { filterCatalogProducts, uniqueProductCategories } from "@/lib/filterCatalogProducts";
 import { ChevronLeft, Search } from "lucide-react";
+import EmptyState from "@/components/EmptyState";
+import ProductCardSkeleton from "@/components/ProductCardSkeleton";
 
 const ALL = "__all__";
 
 const Produk = () => {
+  const navigate = useNavigate();
   const [active, setActive] = useState<CatalogProduct | null>(null);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState(ALL);
   const { addProduct, getQty, increment, decrement, removeProduct, setCartOpen } = useCart();
-  const { products } = useProductsCatalogMerged();
+  const { products, pending } = useProductsCatalogMerged();
 
   const categories = useMemo(() => uniqueProductCategories(products), [products]);
 
@@ -49,10 +52,10 @@ const Produk = () => {
             Cari nama produk atau saring berdasarkan kategori. Harga indikatif—konfirmasi ke admin sebelum transaksi.
           </p>
 
-          <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end">
-            <div className="min-w-0 flex-1 space-y-2">
+          <div className="mb-8 flex flex-col gap-6 md:flex-row md:items-end">
+            <div className="w-full md:w-[300px] lg:w-[400px] shrink-0 space-y-2">
               <Label htmlFor="produk-search" className="text-foreground">
-                Cari
+                Cari Produk
               </Label>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
@@ -61,37 +64,61 @@ const Produk = () => {
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Nama atau deskripsi…"
-                  className="border-border bg-card pl-9"
+                  className="border-border bg-card pl-9 focus:ring-harvest"
                   autoComplete="off"
                 />
               </div>
             </div>
-            <div className="w-full space-y-2 sm:w-52 md:w-60">
-              <Label htmlFor="produk-kategori" className="text-foreground">
-                Kategori
-              </Label>
-              <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger id="produk-kategori" className="border-border bg-card">
-                  <SelectValue placeholder="Semua" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={ALL}>Semua kategori</SelectItem>
-                  {categories.map((c) => (
-                    <SelectItem key={c} value={c}>
-                      {c}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="w-full min-w-0 flex-1 space-y-2">
+              <Label className="text-foreground">Kategori</Label>
+              <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+                <button
+                  key={ALL}
+                  onClick={() => setCategory(ALL)}
+                  className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-medium border transition-all ${
+                    category === ALL
+                      ? "bg-harvest text-white border-harvest shadow-md shadow-harvest/20"
+                      : "bg-card text-foreground border-border hover:border-harvest/40"
+                  }`}
+                >
+                  Semua
+                </button>
+                {categories.map((c) => (
+                  <button
+                    key={c}
+                    onClick={() => setCategory(c)}
+                    className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-medium border transition-all ${
+                      category === c
+                        ? "bg-harvest text-white border-harvest shadow-md shadow-harvest/20"
+                        : "bg-card text-foreground border-border hover:border-harvest/40"
+                    }`}
+                  >
+                    {c}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
-          {filtered.length === 0 ? (
-            <p className="rounded-md border border-border bg-card px-4 py-8 text-center font-body text-sm text-muted-foreground">
-              Tidak ada produk yang cocok. Ubah kata kunci atau kategori.
-            </p>
+
+          {pending ? (
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
+              {[...Array(8)].map((_, i) => (
+                <ProductCardSkeleton key={i} />
+              ))}
+            </div>
+          ) : filtered.length === 0 ? (
+            <EmptyState
+              title="Produk Tidak Ditemukan"
+              description="Tidak ada produk yang cocok dengan kata kunci atau kategori yang Anda pilih. Coba saring dengan kriteria lain."
+              action="Reset Filter"
+              onAction={() => {
+                setSearch("");
+                setCategory(ALL);
+              }}
+            />
           ) : (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
               {filtered.map((product) => {
                 const qty = getQty(product.id);
                 return (
@@ -99,7 +126,7 @@ const Produk = () => {
                     <ProductCatalogCard
                       product={product}
                       qty={qty}
-                      onOpenDetail={() => setActive(product)}
+                      onOpenDetail={() => navigate(`/produk/${product.id}`)}
                       onAddToCart={() => addProduct({ id: product.id, title: product.title, unitPrice: product.price }, 1)}
                       onDecrement={() => decrement(product.id)}
                       onIncrement={() => increment(product.id)}
@@ -115,7 +142,6 @@ const Produk = () => {
       </main>
       <Footer />
       <WhatsAppFloat />
-      <ProductDetailDialog product={active} open={active !== null} onOpenChange={(open) => !open && setActive(null)} />
     </>
   );
 };

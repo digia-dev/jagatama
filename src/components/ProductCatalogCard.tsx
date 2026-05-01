@@ -26,10 +26,10 @@ const ProductCatalogCard = ({
   onRemoveLine,
   onOpenCart,
 }: ProductCatalogCardProps) => {
-  const imgH = compact ? "h-[200px] sm:h-[220px]" : "h-[260px] sm:h-[288px] md:h-[300px]";
-  const padMain = compact ? "px-4 pt-3.5 sm:px-4 sm:pt-4" : "px-5 pt-4 md:px-6 md:pt-5";
-  const padBar = compact ? "px-4 py-3 sm:px-4" : "px-5 py-3.5 md:px-6 md:py-4";
-  const titleCls = compact ? "font-hero text-base font-semibold leading-snug sm:text-lg" : "font-hero text-lg font-semibold leading-snug sm:text-xl md:text-2xl";
+  const imgH = "aspect-square";
+  const padMain = compact ? "px-2 pt-2 sm:px-3 sm:pt-3" : "px-3 pt-3 md:px-5 md:pt-4";
+  const padBar = compact ? "px-2 py-2 sm:px-3" : "px-3 py-2.5 md:px-5 md:py-3.5";
+  const titleCls = compact ? "font-hero text-sm font-semibold leading-snug sm:text-base" : "font-hero text-sm font-semibold leading-snug sm:text-lg md:text-xl";
 
   const cardShadow =
     "shadow-[0_12px_40px_-8px_rgba(15,35,25,0.12),0_24px_64px_-16px_rgba(15,35,25,0.14),0_4px_12px_-2px_rgba(15,35,25,0.06)]";
@@ -68,68 +68,103 @@ const ProductCatalogCard = ({
           ) : null}
           <h3 className={`mb-0 line-clamp-2 shrink-0 text-foreground ${titleCls}`}>{product.title}</h3>
           <div className="mt-auto flex shrink-0 flex-col gap-2 pt-4">
-            <p className="font-heading text-base font-bold tabular-nums text-harvest sm:text-lg">
-              {formatIdr(product.price)}
-              {product.priceNote ? (
-                <span className="ml-1.5 font-body text-xs font-normal text-muted-foreground sm:text-sm">{product.priceNote}</span>
-              ) : null}
-            </p>
+            {product.priceOnRequest ? (
+              <p className="font-heading text-sm font-bold text-harvest sm:text-base">
+                💬 Hubungi untuk Harga
+              </p>
+            ) : (
+              <p className="font-heading text-base font-bold tabular-nums text-harvest sm:text-lg">
+                {formatIdr(product.price)}
+                {product.priceNote ? (
+                  <span className="ml-1.5 font-body text-xs font-normal text-muted-foreground sm:text-sm">
+                    {product.priceNote}
+                  </span>
+                ) : null}
+              </p>
+            )}
             <button
               type="button"
               onClick={onOpenDetail}
               className="inline-flex w-fit items-center gap-1 font-body text-[11px] font-semibold uppercase tracking-[0.16em] text-canopy transition-colors hover:text-harvest sm:text-xs sm:tracking-[0.18em]"
             >
               Lihat detail
-              <ChevronRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5 sm:h-4 sm:w-4" aria-hidden />
+              <ChevronRight
+                className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5 sm:h-4 sm:w-4"
+                aria-hidden
+              />
             </button>
           </div>
         </div>
 
-        <div className={`mt-auto shrink-0 border-t border-border/70 bg-muted/35 ${padBar}`} onClick={(e) => e.stopPropagation()}>
+        <div
+          className={`mt-auto shrink-0 border-t border-border/70 bg-muted/35 ${padBar}`}
+          onClick={(e) => e.stopPropagation()}
+        >
           <div className="flex flex-col gap-2.5">
-            {qty === 0 ? (
+            {product.priceOnRequest ? (
               <Button
                 type="button"
                 size="sm"
-                className="w-full gap-2 rounded-lg bg-harvest font-semibold text-white shadow-sm transition hover:bg-harvest/90 hover:text-white sm:w-auto [&_svg]:text-white"
+                className="w-full gap-1.5 rounded-md bg-harvest px-2 text-[10px] font-semibold text-white shadow-sm transition hover:bg-harvest/90 sm:gap-2 sm:rounded-lg sm:px-3 sm:text-xs md:text-sm [&_svg]:text-white"
+                asChild
+              >
+                <a
+                  href={`https://wa.me/6285743855637?text=${encodeURIComponent(
+                    `Halo Admin Jagasura 👋\n\nSaya tertarik dengan produk *${product.title}*.\n\nBoleh info harga dan ketersediaan stoknya?\n\nTerima kasih 🌾`,
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <ShoppingCart className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden />
+                  <span>Tanya via WhatsApp</span>
+                </a>
+              </Button>
+            ) : qty === 0 ? (
+              <Button
+                type="button"
+                size="sm"
+                className="w-full gap-1.5 rounded-md bg-harvest px-2 text-[10px] font-semibold text-white shadow-sm transition hover:bg-harvest/90 sm:gap-2 sm:rounded-lg sm:px-3 sm:text-xs md:text-sm [&_svg]:text-white"
                 onClick={onAddToCart}
               >
                 <ShoppingCart className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden />
-                Tambah ke keranjang
+                <span>Tambah</span>
               </Button>
             ) : (
-              <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
-                <div className="flex items-center gap-0.5 rounded-lg border border-border bg-background p-0.5">
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2.5">
+                <div className="flex items-center gap-0.5 rounded-md border border-border bg-background p-0.5 sm:rounded-lg">
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 text-foreground hover:bg-muted"
+                    className="h-6 w-6 text-foreground hover:bg-muted sm:h-8 sm:w-8"
                     onClick={onDecrement}
                     aria-label="Kurangi jumlah"
                   >
-                    <Minus className="h-3.5 w-3.5" />
+                    <Minus className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                   </Button>
-                  <span className="min-w-[1.75rem] text-center font-body text-xs font-semibold tabular-nums text-foreground sm:min-w-[2rem] sm:text-sm">
+                  <span className="min-w-[1.25rem] text-center font-body text-[10px] font-semibold tabular-nums text-foreground sm:min-w-[2rem] sm:text-sm">
                     {qty}
                   </span>
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 text-foreground hover:bg-muted"
+                    className="h-6 w-6 text-foreground hover:bg-muted sm:h-8 sm:w-8"
                     onClick={onIncrement}
                     aria-label="Tambah jumlah"
                   >
-                    <Plus className="h-3.5 w-3.5" />
+                    <Plus className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                   </Button>
                 </div>
-                <Button type="button" variant="outline" size="sm" className="rounded-lg border-border text-xs text-foreground hover:bg-muted/80" onClick={onRemoveLine}>
-                  <Trash2 className="mr-1 h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden />
-                  Hapus
-                </Button>
-                <Button type="button" variant="secondary" size="sm" className="rounded-lg text-xs text-secondary-foreground" onClick={onOpenCart}>
-                  Keranjang
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="h-7 rounded-md border-border px-2 text-[10px] text-foreground hover:bg-muted/80 sm:h-9 sm:rounded-lg sm:px-3 sm:text-xs"
+                  onClick={onRemoveLine}
+                >
+                  <Trash2 className="h-3 w-3 sm:mr-1 sm:h-4 sm:w-4" aria-hidden />
+                  <span className="hidden sm:inline">Hapus</span>
                 </Button>
               </div>
             )}

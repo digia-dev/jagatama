@@ -307,16 +307,7 @@ const AdminHeroPage = () => {
                 />
               </div>
             </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label>Footer kiri</Label>
-                <Input value={draft.footer_left} onChange={(e) => setD("footer_left", e.target.value)} />
-              </div>
-              <div className="space-y-2">
-                <Label>Footer kanan</Label>
-                <Input value={draft.footer_right} onChange={(e) => setD("footer_right", e.target.value)} />
-              </div>
-            </div>
+
           </div>
           <DialogFooter className="shrink-0 border-t border-border px-6 py-4">
             <Button type="button" variant="outline" onClick={() => setSlideDialog(false)}>

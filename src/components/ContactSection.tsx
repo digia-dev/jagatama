@@ -1,14 +1,32 @@
 import { MapPin, Phone, Send } from "lucide-react";
 import { useState } from "react";
-import { whatsappContacts } from "@/data/whatsappContacts";
+import { useQuery } from "@tanstack/react-query";
+import { cmsFetch } from "@/lib/cmsApi";
+
+type WaContact = { id: number; label: string; phone: string; department: string; is_primary: number; is_active: number; };
 
 const ContactSection = () => {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
 
+  const { data: waContacts } = useQuery<WaContact[]>({
+    queryKey: ["cms", "whatsapp", "public"],
+    queryFn: async () => {
+      try {
+        const d = await cmsFetch("whatsapp.php?active=1");
+        return Array.isArray(d) && d.length > 0 ? d as WaContact[] : [];
+      } catch { return []; }
+    },
+    staleTime: 300_000,
+  });
+
+  const contacts = waContacts ?? [];
+  const primaryContact = contacts.find(c => c.is_primary) ?? contacts[0];
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const waMessage = encodeURIComponent(`Halo, saya ${form.name} (${form.email}). ${form.message}`);
-    window.open(`https://wa.me/${whatsappContacts[0].waId}?text=${waMessage}`, "_blank");
+    const phone = primaryContact?.phone ?? "6285743855637";
+    window.open(`https://wa.me/${phone}?text=${waMessage}`, "_blank");
   };
 
   return (
@@ -39,10 +57,10 @@ const ContactSection = () => {
                 <h3 className="font-heading text-lg font-semibold text-foreground">WhatsApp</h3>
               </div>
               <div className="space-y-3">
-                {whatsappContacts.map((c) => (
+                {contacts.length > 0 ? contacts.map((c) => (
                   <a
-                    key={c.waId}
-                    href={`https://wa.me/${c.waId}`}
+                    key={c.id}
+                    href={`https://wa.me/${c.phone}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-3 p-3 bg-card border border-border rounded-sm hover:border-harvest/30 transition-all group"
@@ -51,11 +69,13 @@ const ContactSection = () => {
                       <Phone size={14} className="text-canopy group-hover:text-harvest transition-colors" />
                     </div>
                     <div>
-                      <p className="font-body text-sm font-medium text-foreground">{c.name}</p>
-                      <p className="font-body text-xs text-muted-foreground">{c.phone}</p>
+                      <p className="font-body text-sm font-medium text-foreground">{c.label}</p>
+                      <p className="font-body text-xs text-muted-foreground">{c.department || `+${c.phone}`}</p>
                     </div>
                   </a>
-                ))}
+                )) : (
+                  <p className="text-sm text-muted-foreground">Memuat kontak…</p>
+                )}
               </div>
             </div>
 

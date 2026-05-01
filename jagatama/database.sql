@@ -8,6 +8,7 @@ DROP TABLE IF EXISTS product_variants;
 DROP TABLE IF EXISTS products;
 DROP TABLE IF EXISTS gallery_items;
 DROP TABLE IF EXISTS hero_slides;
+DROP TABLE IF EXISTS site_settings;
 DROP TABLE IF EXISTS admins;
 
 SET FOREIGN_KEY_CHECKS = 1;
@@ -21,6 +22,18 @@ CREATE TABLE admins (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO admins (username, password_hash) VALUES ('admin', '$2y$10$YE2WNqcKfISNdJT7aIKDNOqY4VzbFi.JD5HoAaNJ.kbPgYRZMSpda');
+INSERT INTO admins (username, password_hash) VALUES ('jagatama', '$2y$10$gTpETiJD3UcxkhcMShT9Ae56bbYaoURrvy8WQk9ZClESMhGYE3h/S');
+
+CREATE TABLE site_settings (
+  id INT NOT NULL AUTO_INCREMENT,
+  logo_url TEXT,
+  brand_name VARCHAR(255) NOT NULL,
+  tagline VARCHAR(255) NOT NULL,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO site_settings (logo_url, brand_name, tagline) VALUES ('/logotp.png', 'Jagasura Agrotama', 'Sustainable Agriculture');
 
 CREATE TABLE hero_slides (
   id INT NOT NULL AUTO_INCREMENT,

@@ -4,6 +4,9 @@ import type { Article } from "@/data/articles";
 import { articles as fallbackArticles } from "@/data/articles";
 import { productsCatalog as fallbackProducts } from "@/data/productsCatalog";
 import type { CatalogProduct } from "@/data/productsCatalog";
+import { fallbackSettings } from "@/data/siteSettings";
+import type { SiteSettings } from "@/data/siteSettings";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export type HeroSlideApiRow = {
   id: number;
@@ -30,14 +33,16 @@ export type HeroApiRow = {
 
 export type ProductApiRow = {
   id: number;
+  slug?: string;
   title: string;
   category?: string;
   description: string;
   image_url: string;
   price: number;
   price_note: string;
+  price_on_request: number;
   sort_order: number;
-  variants: { id: number; label: string; sort_order: number }[];
+  variants: { id: number; label: string; price: number; sort_order: number; image_url?: string }[];
 };
 
 export type ArticleSummaryApi = {
@@ -66,14 +71,20 @@ export type GalleryApiRow = {
 export function mapProductRowToCatalog(p: ProductApiRow): CatalogProduct {
   const cat = typeof p.category === "string" ? p.category.trim() : "";
   return {
-    id: String(p.id),
+    id: p.slug || String(p.id),
     title: p.title,
     description: p.description,
     image: p.image_url,
     price: p.price,
     priceNote: p.price_note || undefined,
+    priceOnRequest: !!p.price_on_request,
     category: cat || undefined,
-    items: p.variants?.map((v) => v.label) ?? [],
+    variants: (p.variants ?? []).map(v => ({
+      id: String(v.id),
+      label: v.label,
+      price: v.price || p.price,
+      image: v.image_url || undefined,
+    })),
   };
 }
 
@@ -131,7 +142,7 @@ function normalizeHeroPayload(raw: unknown): HeroApiRow {
     footer_right: heroStr(o.footer_right),
   };
   const slidesRaw = o.slides;
-  let slides: HeroSlideApiRow[] = Array.isArray(slidesRaw)
+  const slides: HeroSlideApiRow[] = Array.isArray(slidesRaw)
     ? slidesRaw
         .map((s) => {
           if (!s || typeof s !== "object") return null;
@@ -158,7 +169,7 @@ function normalizeHeroPayload(raw: unknown): HeroApiRow {
             footer_right: pick("footer_right"),
             created_at: typeof r.created_at === "string" ? r.created_at : undefined,
             updated_at: typeof r.updated_at === "string" ? r.updated_at : undefined,
-          };
+          } as HeroSlideApiRow;
         })
         .filter((x): x is HeroSlideApiRow => x !== null)
     : [];
@@ -192,8 +203,12 @@ export function useHeroCms() {
   return useQuery<HeroApiRow>({
     queryKey: ["cms", "hero"],
     queryFn: async () => {
-      const raw = await cmsFetch("hero.php");
-      return parseHeroCmsResponse(raw);
+      const data = await cmsFetch("hero_slides.php");
+      // The API returns an array directly, but normalizeHeroPayload expects { slides: [...] } or { ...legacy, slides: [...] }
+      if (Array.isArray(data)) {
+        return normalizeHeroPayload({ slides: data });
+      }
+      return normalizeHeroPayload(data);
     },
     retry: 1,
     staleTime: 60_000,
@@ -213,15 +228,47 @@ export function useProductsCms() {
   });
 }
 
-export function useProductsCatalogMerged(): { products: CatalogProduct[]; fromApi: boolean; pending: boolean } {
-  const q = useProductsCms();
-  if (q.isPending) {
-    return { products: fallbackProducts, fromApi: false, pending: true };
+export function useProductsCatalogMerged(): { products: CatalogProduct[]; fromApi: boolean; pending: boolean; error: boolean } {
+  const { data, isPending, isError } = useQuery({
+    queryKey: ["cms", "products"],
+    queryFn: async () => {
+      const data = (await cmsFetch("products.php")) as ProductApiRow[];
+      if (!Array.isArray(data)) throw new Error("invalid");
+      return data;
+    },
+    retry: 1,
+    staleTime: 60_000,
+  });
+
+  // While pending, we show fallbacks to avoid layout shift, but we mark it as pending
+  if (isPending) return { products: fallbackProducts, fromApi: false, pending: true, error: false };
+  
+  // If error or no data, we use fallbacks
+  if (isError || !data) return { products: fallbackProducts, fromApi: false, pending: false, error: true };
+  
+  // If we have data but it's empty, we might still want to show fallbacks OR an empty state.
+  // User says "not matching data", so we should show EXACTLY what is in CMS if we have data.
+  if (data.length === 0) {
+     return { products: fallbackProducts, fromApi: false, pending: false, error: false };
   }
-  if (q.data && q.data.length > 0) {
-    return { products: q.data.map(mapProductRowToCatalog), fromApi: true, pending: false };
-  }
-  return { products: fallbackProducts, fromApi: false, pending: false };
+
+  const products: CatalogProduct[] = data.map(p => ({
+    id: p.slug || String(p.id),
+    title: p.title,
+    category: p.category ?? "Lainnya",
+    description: p.description,
+    image: p.image_url,
+    price: p.price,
+    priceNote: p.price_note,
+    priceOnRequest: !!p.price_on_request,
+    variants: (p.variants ?? []).map(v => ({
+      id: String(v.id),
+      label: v.label,
+      price: v.price || p.price,
+      image: v.image_url || undefined,
+    })),
+  }));
+  return { products, fromApi: true, pending: false, error: false };
 }
 
 export function useArticlesListCms() {
@@ -237,19 +284,27 @@ export function useArticlesListCms() {
   });
 }
 
-export function useArticlesMerged(): { articles: Article[]; fromApi: boolean; pending: boolean } {
-  const q = useArticlesListCms();
-  if (q.isPending) {
-    return { articles: fallbackArticles, fromApi: false, pending: true };
+export function useArticlesMerged(): { articles: Article[]; fromApi: boolean; pending: boolean; error: boolean } {
+  const { data, isPending, isError } = useQuery({
+    queryKey: ["cms", "articles"],
+    queryFn: async () => {
+      const data = (await cmsFetch("articles.php")) as ArticleSummaryApi[];
+      if (!Array.isArray(data)) throw new Error("invalid");
+      return data;
+    },
+    retry: 1,
+    staleTime: 60_000,
+  });
+
+  if (isPending) return { articles: fallbackArticles, fromApi: false, pending: true, error: false };
+  if (isError || !data) return { articles: fallbackArticles, fromApi: false, pending: false, error: true };
+  
+  if (data.length === 0) {
+    return { articles: fallbackArticles, fromApi: false, pending: false, error: false };
   }
-  if (q.data && q.data.length > 0) {
-    return {
-      articles: q.data.map(mapSummaryToArticleCard),
-      fromApi: true,
-      pending: false,
-    };
-  }
-  return { articles: fallbackArticles, fromApi: false, pending: false };
+
+  const articles: Article[] = data.map(mapSummaryToArticleCard);
+  return { articles, fromApi: true, pending: false, error: false };
 }
 
 export function useArticleBySlugCms(slug: string | undefined) {
@@ -271,11 +326,66 @@ export function useGalleryCms() {
   return useQuery({
     queryKey: ["cms", "gallery"],
     queryFn: async () => {
-      const data = (await cmsFetch("gallery.php")) as GalleryApiRow[];
+      const data = await cmsFetch("gallery.php");
       if (!Array.isArray(data)) throw new Error("invalid");
       return data;
     },
     retry: 1,
+    staleTime: 60_000,
+  });
+}
+
+export function useSettingsCms() {
+  return useQuery<SiteSettings>({
+    queryKey: ["cms", "settings"],
+    queryFn: async () => {
+      try {
+        const data = await cmsFetch("settings.php");
+        return data as SiteSettings;
+      } catch {
+        return fallbackSettings;
+      }
+    },
+    staleTime: 60_000,
+  });
+}
+
+export function useUpdateSettingsMutation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: SiteSettings) => {
+      return cmsFetch("settings.php", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["cms", "settings"] });
+    },
+  });
+}
+
+export type WhatsAppContactApiRow = {
+  id: number;
+  label: string;
+  phone: string;
+  department: string;
+  is_primary: number;
+  is_active: number;
+};
+
+export function useWhatsAppContactsCms() {
+  return useQuery<WhatsAppContactApiRow[]>({
+    queryKey: ["cms", "whatsapp-contacts"],
+    queryFn: async () => {
+      try {
+        const data = await cmsFetch("whatsapp.php?active=1");
+        if (!Array.isArray(data) || data.length === 0) return [];
+        return data as WhatsAppContactApiRow[];
+      } catch {
+        return [];
+      }
+    },
     staleTime: 60_000,
   });
 }

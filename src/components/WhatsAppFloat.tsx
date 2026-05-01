@@ -1,13 +1,33 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { Phone, X } from "lucide-react";
-import { whatsappContacts } from "@/data/whatsappContacts";
+import { cmsFetch } from "@/lib/cmsApi";
 import { cn } from "@/lib/utils";
 
+type WaContact = { id: number; label: string; phone: string; department: string; is_primary: number; is_active: number; };
+
 const WA_LOGO = "https://api.vadr.my.id//uploads/img_68c3ca1163b892.70450478.webp";
+const WA_MESSAGE = encodeURIComponent("Halo Admin Jagasura 👋\n\nSaya tertarik dengan produk Jagasura Agrotama.\n\nBoleh info ketersediaan stok dan harga terbaru?\n\nTerima kasih 🌾");
 
 const WhatsAppFloat = () => {
   const [open, setOpen] = useState(false);
+
+  const { data: contacts } = useQuery<WaContact[]>({
+    queryKey: ["cms", "whatsapp", "public"],
+    queryFn: async () => {
+      try {
+        const d = await cmsFetch("whatsapp.php?active=1");
+        if (!Array.isArray(d) || d.length === 0) return [];
+        return d as WaContact[];
+      } catch {
+        return [];
+      }
+    },
+    staleTime: 300_000,
+  });
+
+  const activeContacts = contacts ?? [];
 
   return (
     <>
@@ -53,10 +73,12 @@ const WhatsAppFloat = () => {
             </div>
 
             <div className="flex flex-col gap-0.5 p-2">
-              {whatsappContacts.map((c) => (
+              {activeContacts.length === 0 ? (
+                <p className="px-3 py-4 text-sm text-muted-foreground text-center">Tidak ada kontak tersedia.</p>
+              ) : activeContacts.map((c) => (
                 <a
-                  key={c.waId}
-                  href={`https://wa.me/${c.waId}`}
+                  key={c.id}
+                  href={`https://wa.me/${c.phone}?text=${WA_MESSAGE}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => setOpen(false)}
@@ -66,8 +88,8 @@ const WhatsAppFloat = () => {
                     <Phone className="h-4 w-4 text-[#128C7E]" aria-hidden />
                   </div>
                   <div className="min-w-0 text-left">
-                    <p className="text-sm font-semibold">{c.name}</p>
-                    <p className="text-xs text-muted-foreground">{c.phone}</p>
+                    <p className="text-sm font-semibold">{c.label}</p>
+                    <p className="text-xs text-muted-foreground">{c.department || `+${c.phone}`}</p>
                   </div>
                 </a>
               ))}

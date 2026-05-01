@@ -76,6 +76,9 @@ const AdminArticlesPage = () => {
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [uploading, setUploading] = useState(false);
   const [loadingFull, setLoadingFull] = useState(false);
+  const [importUrlDialogOpen, setImportUrlDialogOpen] = useState(false);
+  const [importUrl, setImportUrl] = useState("");
+  const [extracting, setExtracting] = useState(false);
 
   const resetForm = () => {
     setEditingId(null);
@@ -212,15 +215,55 @@ const AdminArticlesPage = () => {
     }
   };
 
+  const handleExtract = async () => {
+    if (!importUrl.trim()) return;
+    setExtracting(true);
+    try {
+      const data = (await cmsFetch(`extract_article.php?url=${encodeURIComponent(importUrl.trim())}`)) as {
+        title?: string;
+        image_url?: string;
+        excerpt?: string;
+        paragraphs?: string[];
+        date_display?: string;
+      };
+      resetForm();
+      setTitle(data.title || "");
+      setImageUrl(data.image_url || "");
+      setExcerpt(data.excerpt || "");
+      setParagraphsText(data.paragraphs?.join("\n\n") || "");
+      setDateDisplay(data.date_display || "");
+      
+      // Auto generate slug from title
+      const generatedSlug = (data.title || "")
+        .toLowerCase()
+        .replace(/[^\w ]+/g, "")
+        .replace(/ +/g, "-");
+      setSlug(generatedSlug);
+      
+      setImportUrlDialogOpen(false);
+      setDialogOpen(true);
+      toast.success("Konten berhasil ditarik!");
+    } catch (err) {
+      toast.error("Gagal menarik konten. Pastikan URL valid.");
+    } finally {
+      setExtracting(false);
+    }
+  };
+
   const colCount = 6;
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="font-heading text-2xl font-bold text-foreground">Artikel</h1>
-        <Button type="button" onClick={openAdd}>
-          Tambah artikel
-        </Button>
+        <div className="flex gap-2">
+          <Button type="button" variant="outline" onClick={() => setImportUrlDialogOpen(true)}>
+            Impor dari URL
+          </Button>
+          <Button type="button" onClick={openAdd}>
+            Tambah artikel
+          </Button>
+        </div>
       </div>
 
       <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end">
@@ -402,6 +445,36 @@ const AdminArticlesPage = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={importUrlDialogOpen} onOpenChange={setImportUrlDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Impor Artikel Otomatis</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="import-url">Masukkan URL Artikel</Label>
+              <Input
+                id="import-url"
+                placeholder="https://news-site.com/article-url"
+                value={importUrl}
+                onChange={(e) => setImportUrl(e.target.value)}
+              />
+              <p className="text-[10px] text-muted-foreground">
+                Sistem akan mencoba mengambil judul, gambar, dan teks dari link yang diberikan.
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setImportUrlDialogOpen(false)}>
+              Batal
+            </Button>
+            <Button onClick={handleExtract} disabled={extracting || !importUrl.trim()}>
+              {extracting ? "Menarik Konten..." : "Generate Konten"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
-import { ExternalLink, LayoutDashboard, LogOut, Menu, ImageIcon, Newspaper, Package, Sparkles } from "lucide-react";
+import { ExternalLink, LayoutDashboard, LogOut, Menu, ImageIcon, Newspaper, Package, Sparkles, Settings, MessageCircle, Users, Star, UserCog } from "lucide-react";
 import { setAdminToken } from "@/lib/cmsApi";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
@@ -11,6 +11,11 @@ const nav = [
   { to: "products", label: "Produk", icon: Package },
   { to: "articles", label: "Artikel", icon: Newspaper },
   { to: "gallery", label: "Galeri", icon: ImageIcon },
+  { to: "testimoni", label: "Testimoni", icon: Star },
+  { to: "team", label: "Tim", icon: Users },
+  { to: "whatsapp", label: "WhatsApp", icon: MessageCircle },
+  { to: "users", label: "User Admin", icon: UserCog },
+  { to: "settings", label: "Pengaturan", icon: Settings },
 ];
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>

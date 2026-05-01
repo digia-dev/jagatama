@@ -1,4 +1,4 @@
-import servicesImg from "@/assets/services-training.jpg";
+
 import { Sprout, Leaf, Warehouse, GraduationCap, Recycle } from "lucide-react";
 
 const coreActivities = [
@@ -27,13 +27,13 @@ const ServicesSection = () => {
         <p className="mb-3 font-body text-sm uppercase tracking-[0.25em] text-harvest">Layanan Kami</p>
         <h1 className="mb-4 max-w-3xl font-heading text-3xl font-bold leading-tight text-foreground md:text-5xl">Ekosistem Pertanian Terintegrasi</h1>
         <p className="mb-12 max-w-2xl font-body text-lg text-muted-foreground md:mb-16">
-          Dikelola oleh Koperasi Satria Tani Hanggawana — tiga pilar utama: Farm, Food, dan Mart.
+          Koperasi Satria Tani Hanggawana menciptakan infrastruktur industri pertanian terintegrasi untuk menghasilkan komoditas pangan yang berkelanjutan dan memberdayakan ekosistem bisnis — Farm · Food · Mart.
         </p>
 
         <div className="relative mb-14 overflow-hidden rounded-2xl border border-border/60 shadow-xl shadow-soil/10 ring-1 ring-border/40 md:mb-20">
           <img
-            src={servicesImg}
-            alt="Petani muda berlatih di greenhouse modern"
+            src="/produk/Gambar%20Sinergitas%20(Tentang%20Kami)/Pelatihan.png"
+            alt="Program pelatihan dan magang petani muda Jagasura Agrotama"
             className="h-[280px] w-full object-cover sm:h-[360px] md:h-[420px]"
             loading="lazy"
             width={1280}
@@ -42,7 +42,7 @@ const ServicesSection = () => {
           <div className="absolute inset-0 bg-gradient-to-t from-soil/75 via-soil/20 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10">
             <p className="font-heading text-2xl font-bold text-primary-foreground md:text-3xl">Farm · Food · Mart</p>
-            <p className="mt-2 max-w-md font-body text-sm text-primary-foreground/80 md:text-base">Tiga pilar ekosistem bisnis terpadu untuk ketahanan dan nilai tambah berkelanjutan.</p>
+            <p className="mt-2 max-w-md font-body text-sm text-primary-foreground/80 md:text-base">"Menebar gagasan, menumbuhkan wawasan, meningkatkan kapasitas dan kesejahteraan" — Koperasi Satria Tani Hanggawana</p>
           </div>
         </div>
 

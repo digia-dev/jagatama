@@ -2,17 +2,37 @@ import { Link, useParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WhatsAppFloat from "@/components/WhatsAppFloat";
-import { getArticleBySlug } from "@/data/articles";
+import { getArticleBySlug, articles as allArticles } from "@/data/articles";
 import { ChevronLeft } from "lucide-react";
-import { useArticleBySlugCms } from "@/hooks/useCmsQueries";
+import { useArticleBySlugCms, useArticlesMerged } from "@/hooks/useCmsQueries";
 
 const SPLIT_AFTER_PARAGRAPH = 2;
 
 const ArticleDetail = () => {
   const { slug } = useParams<{ slug: string }>();
+  const { articles: allArticlesMerged } = useArticlesMerged();
   const q = useArticleBySlugCms(slug);
   const fallback = slug ? getArticleBySlug(slug) : undefined;
   const article = q.isFetched ? (q.data ?? fallback) : undefined;
+
+  if (q.isError && !fallback) {
+    return (
+      <>
+        <Navbar />
+        <main className="bg-cream-gradient pb-24 pt-28 md:pt-32">
+          <div className="mx-auto max-w-7xl px-6 md:px-12 lg:px-20 xl:px-32 text-center">
+            <h1 className="mb-4 font-heading text-2xl font-bold text-foreground">Terjadi kesalahan</h1>
+            <p className="mb-8 font-body text-muted-foreground">Gagal memuat detail artikel. Silakan coba lagi nanti.</p>
+            <Link to="/artikel" className="inline-flex rounded-sm bg-harvest px-6 py-3 font-body font-semibold text-harvest-foreground transition-all hover:brightness-110">
+              Kembali ke Berita
+            </Link>
+          </div>
+        </main>
+        <Footer />
+        <WhatsAppFloat />
+      </>
+    );
+  }
 
   if (!article && q.isFetched) {
     return (
@@ -40,8 +60,10 @@ const ArticleDetail = () => {
       <>
         <Navbar />
         <main className="bg-cream-gradient pb-24 pt-28 md:pt-32">
-          <div className="mx-auto max-w-7xl px-6 md:px-12 lg:px-20 xl:px-32">
-            <div className="h-40 animate-pulse rounded-sm bg-muted/40" aria-hidden />
+          <div className="mx-auto max-w-7xl px-6 md:px-12 lg:px-20 xl:px-32 space-y-6">
+            <div className="h-8 w-32 animate-pulse rounded-md bg-muted/40" />
+            <div className="h-16 w-full animate-pulse rounded-md bg-muted/40" />
+            <div className="aspect-video w-full animate-pulse rounded-md bg-muted/40" />
           </div>
         </main>
         <Footer />
@@ -57,7 +79,10 @@ const ArticleDetail = () => {
     <>
       <Navbar />
       <article className="bg-cream-gradient pb-20 pt-24 md:pt-28">
-        <div className="mx-auto max-w-7xl px-6 md:px-12 lg:px-20 xl:px-32">
+        <div className="mx-auto max-w-7xl px-6 md:px-12 lg:px-20">
+          <div className="flex flex-col lg:flex-row gap-12">
+            {/* Main Content */}
+            <div className="lg:w-2/3">
           <Link
             to="/artikel"
             className="mb-8 inline-flex items-center gap-2 font-body text-sm font-medium text-muted-foreground transition-colors hover:text-harvest"
@@ -114,7 +139,66 @@ const ArticleDetail = () => {
             )}
           </div>
         </div>
-      </article>
+
+        <aside className="lg:w-1/3">
+          <div className="sticky top-32 space-y-8">
+            <div className="rounded-3xl border border-border bg-white p-6 shadow-sm">
+              <h3 className="font-heading text-lg font-bold text-foreground mb-6">Artikel Terkait</h3>
+              <div className="space-y-6">
+                {allArticlesMerged
+                  .filter((a) => a.category === article.category && a.slug !== article.slug)
+                  .slice(0, 3)
+                  .map((related) => (
+                    <Link 
+                      key={related.slug} 
+                      to={`/artikel/${related.slug}`}
+                      className="group block"
+                    >
+                      <div className="flex gap-4">
+                        <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-border">
+                          <img 
+                            src={related.image} 
+                            alt={related.title} 
+                            className="h-full w-full object-cover transition-transform group-hover:scale-110"
+                          />
+                        </div>
+                        <div className="min-w-0">
+                          <h4 className="font-heading text-sm font-bold leading-snug text-foreground group-hover:text-harvest transition-colors line-clamp-2">
+                            {related.title}
+                          </h4>
+                          <p className="mt-1 font-body text-xs text-muted-foreground">{related.date}</p>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+              </div>
+              <Link 
+                to="/artikel" 
+                className="mt-8 inline-flex items-center gap-2 font-body text-sm font-bold text-harvest hover:gap-3 transition-all"
+              >
+                Lihat Semua Artikel <ChevronLeft className="h-4 w-4 rotate-180" />
+              </Link>
+            </div>
+
+            <div className="rounded-3xl bg-harvest p-8 text-white shadow-xl shadow-harvest/20">
+              <h3 className="font-heading text-xl font-bold mb-3">Ikuti Kabar Jagasura</h3>
+              <p className="font-body text-sm text-white/80 mb-6 leading-relaxed">
+                Dapatkan update terbaru seputar inovasi pertanian terpadu dan peluang kemitraan.
+              </p>
+              <a 
+                href="https://wa.me/6285743855637" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="block w-full rounded-xl bg-white py-3 text-center font-body text-sm font-bold text-harvest hover:bg-white/90 transition-all"
+              >
+                Hubungi Admin
+              </a>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </article>
       <Footer />
       <WhatsAppFloat />
     </>

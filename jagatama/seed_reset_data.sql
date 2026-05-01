@@ -10,14 +10,15 @@ SET @img_services = 'https://api.vadr.my.id//uploads/img_69da3dbf826a10.71814394
 SET @img_gallery = 'https://api.vadr.my.id//uploads/img_69da3dbf997d23.30340118.webp';
 
 SET FOREIGN_KEY_CHECKS = 0;
-DELETE FROM article_extra_images;
-DELETE FROM article_paragraphs;
-DELETE FROM articles;
-DELETE FROM product_variants;
-DELETE FROM products;
-DELETE FROM gallery_items;
-DELETE FROM hero_slides;
-DELETE FROM admins;
+TRUNCATE TABLE article_extra_images;
+TRUNCATE TABLE article_paragraphs;
+TRUNCATE TABLE articles;
+TRUNCATE TABLE product_variants;
+TRUNCATE TABLE products;
+TRUNCATE TABLE gallery_items;
+TRUNCATE TABLE hero_slides;
+TRUNCATE TABLE site_settings;
+TRUNCATE TABLE admins;
 SET FOREIGN_KEY_CHECKS = 1;
 
 ALTER TABLE products AUTO_INCREMENT = 1;
@@ -94,3 +95,7 @@ INSERT INTO gallery_items (image_url, alt_text, sort_order, is_tall) VALUES
 (@img_services, 'Young farmers in training', 3, 0),
 (@img_gallery, 'Greenhouse interior', 4, 0),
 (@img_livestock, 'Livestock grazing', 5, 0);
+
+INSERT INTO admins (username, password_hash) VALUES ('admin', '$2y$10$YE2WNqcKfISNdJT7aIKDNOqY4VzbFi.JD5HoAaNJ.kbPgYRZMSpda');
+INSERT INTO admins (username, password_hash) VALUES ('jagatama', '$2y$10$gTpETiJD3UcxkhcMShT9Ae56bbYaoURrvy8WQk9ZClESMhGYE3h/S');
+INSERT INTO site_settings (logo_url, brand_name, tagline) VALUES ('/logotp.png', 'Jagasura Agrotama', 'Sustainable Agriculture');

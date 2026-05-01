@@ -7,18 +7,18 @@ import { useHeroCms } from "@/hooks/useCmsQueries";
 const CAROUSEL_MS = 7000;
 
 const FB = {
-  eyebrow: "PT Jagasura Agrotama Indonesia · Hortikultura dan peternakan terintegrasi",
-  headline_part1: "Operasi agro terpadu: ",
-  headline_highlight: "budidaya",
-  headline_part2: ", edukasi, dan nilai tambah berkelanjutan",
+  eyebrow: " PT Jagasura Agrotama Indonesia",
+  headline_part1: "Industri Pertanian ",
+  headline_highlight: "Terintegrasi",
+  headline_part2: " — Ramah Lingkungan, Berkelanjutan & Mandiri",
   description_text:
-    "Greenhouse dan hortikultura, MJ Farm, serta diklat dan magang—dijalankan secara teknis dan terukur.",
+    "Menebar gagasan, menumbuhkan wawasan, meningkatkan kapasitas dan kesejahteraan. Farm · Food · Mart dalam satu ekosistem agro terpadu di Tegal, Jawa Tengah.",
   primary_cta_label: "Lihat Produk Kami",
   primary_cta_hash: "produk",
   secondary_cta_label: "Hubungi Kami",
   secondary_cta_hash: "kontak",
-  footer_left: "Jagasura Farm",
-  footer_right: "MJ Farm",
+  footer_left: "\"Bertani itu Keren dan Berdaya Saing\"",
+  footer_right: "Dukuhwaru, Tegal, Jawa Tengah",
 };
 
 const HeroSection = () => {
@@ -26,19 +26,38 @@ const HeroSection = () => {
   const [active, setActive] = useState(0);
 
   const slides = useMemo(
-    () =>
-      (data?.slides ?? [])
+    () => {
+      const apiSlides = (data?.slides ?? [])
         .slice()
-        .sort((a, b) => a.sort_order - b.sort_order || a.id - b.id),
-    [data?.slides],
+        .sort((a, b) => a.sort_order - b.sort_order || a.id - b.id);
+      
+      // If we are still loading, show fallback slides
+      if (isPending || apiSlides.length === 0) {
+        return [
+          {
+            ...FB,
+            id: -1,
+            image_url: "/produk/Gambar%20Latar/Latar%202.jpg",
+          },
+          {
+            ...FB,
+            id: -2,
+            image_url: "/produk/Gambar%20Latar/2.jpg",
+          },
+          {
+            ...FB,
+            id: -3,
+            image_url: "/produk/Gambar%20Latar/5.jpg",
+          }
+        ];
+      }
+      return apiSlides;
+    },
+    [data?.slides, isPending],
   );
 
   const backgrounds = useMemo(() => {
-    if (slides.length === 0) return [heroImg];
-    return slides.map((s) => {
-      const u = s.image_url.trim();
-      return u || heroImg;
-    });
+    return slides.map((s) => s.image_url);
   }, [slides]);
 
   const slide = slides.length > 0 ? slides[Math.min(active, slides.length - 1)] : null;
@@ -76,7 +95,7 @@ const HeroSection = () => {
   const goNext = () => setActive((i) => (i + 1) % n);
 
   return (
-    <section id="beranda" className="relative flex min-h-screen items-center justify-center overflow-hidden">
+    <section id="beranda" className="relative flex min-h-screen items-center justify-center overflow-hidden pt-24 sm:pt-0">
       <div className="absolute inset-0">
         {backgrounds.map((src, i) => (
           <img
@@ -115,58 +134,30 @@ const HeroSection = () => {
         </>
       ) : null}
 
-      {backgrounds.length > 1 ? (
-        <div
-          className="absolute bottom-24 left-1/2 z-[5] flex -translate-x-1/2 gap-2 sm:bottom-28"
-          role="tablist"
-          aria-label="Hero slides"
-        >
-          {backgrounds.map((_, i) => (
-            <button
-              key={i}
-              type="button"
-              role="tab"
-              aria-selected={i === active}
-              className={`h-2 rounded-full transition-all ${i === active ? "w-8 bg-primary-foreground" : "w-2 bg-primary-foreground/35 hover:bg-primary-foreground/55"}`}
-              onClick={() => setActive(i)}
-            />
-          ))}
-        </div>
-      ) : null}
 
-      <div key={`hero-copy-${slide?.id ?? "x"}-${active}`} className="relative z-10 mx-auto max-w-5xl px-6 text-center">
-        <p
-          className={`mb-6 font-body text-sm uppercase tracking-[0.25em] text-harvest md:text-base md:tracking-[0.3em] ${isPending ? "opacity-90" : ""}`}
-        >
-          {t("eyebrow")}
-        </p>
-        <h1 className="mb-6 font-hero text-4xl font-bold leading-[1.12] text-primary-foreground md:text-5xl lg:text-6xl xl:text-7xl">
-          {t("headline_part1")}
-          <span className="text-harvest">{t("headline_highlight")}</span>
+
+      <div key={`hero-copy-${slide?.id ?? "x"}-${active}`} className="relative z-10 mx-auto w-full max-w-5xl px-4 sm:px-6 text-center">
+        <h1 className="mb-4 sm:mb-6 font-hero text-3xl sm:text-4xl font-bold !leading-[1.2] text-primary-foreground md:text-5xl lg:text-6xl xl:text-7xl [word-break:break-word] hyphens-auto">
+          {t("headline_part1")}{" "}
+          <span className="text-harvest">{t("headline_highlight")}</span>{" "}
           {t("headline_part2")}
         </h1>
-        <p className="mx-auto mb-10 max-w-xl font-body text-base leading-relaxed text-primary-foreground/85 md:text-lg">
+        <p className="mx-auto mb-8 sm:mb-10 max-w-2xl font-body text-sm sm:text-base leading-relaxed text-primary-foreground/90 md:text-lg">
           {t("description_text")}
         </p>
-        <div className="flex flex-col justify-center gap-4 sm:flex-row">
+        <div className="mx-auto flex w-full max-w-xs flex-col items-center justify-center gap-3 sm:max-w-none sm:flex-row sm:gap-4">
           <Link
             to={{ pathname: "/", hash: t("primary_cta_hash") }}
-            className="rounded-sm bg-harvest px-8 py-4 font-body text-base font-semibold tracking-wide text-harvest-foreground transition-all duration-300 hover:brightness-110"
+            className="w-full rounded-sm bg-harvest px-6 py-3 sm:py-4 font-body text-sm sm:text-base font-semibold tracking-wide text-harvest-foreground transition-all duration-300 hover:brightness-110 sm:w-auto sm:px-8 text-center"
           >
             {t("primary_cta_label")}
           </Link>
           <Link
             to={{ pathname: "/", hash: t("secondary_cta_hash") }}
-            className="rounded-sm border-2 border-primary-foreground/40 px-8 py-4 font-body text-base font-medium text-primary-foreground transition-all duration-300 hover:bg-primary-foreground/10"
+            className="w-full rounded-sm border-2 border-primary-foreground/40 px-6 py-3 sm:py-4 font-body text-sm sm:text-base font-medium text-primary-foreground transition-all duration-300 hover:bg-primary-foreground/10 sm:w-auto sm:px-8 text-center"
           >
             {t("secondary_cta_label")}
           </Link>
-        </div>
-
-        <div className="mt-16 flex items-center justify-center gap-6 text-sm font-body uppercase tracking-widest text-primary-foreground/60 sm:gap-8">
-          <span>{t("footer_left")}</span>
-          <span className="h-5 w-px bg-primary-foreground/30" />
-          <span>{t("footer_right")}</span>
         </div>
       </div>
 

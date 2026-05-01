@@ -1,10 +1,12 @@
-import aboutImg from "@/assets/about-farming.jpg";
+import { useState, useEffect, useMemo } from "react";
+import { useGalleryCms } from "@/hooks/useCmsQueries";
+import { motion, AnimatePresence } from "framer-motion";
 
 const stats = [
-  { value: "9", label: "Greenhouse" },
-  { value: "3,366", label: "m² Lahan Budidaya" },
-  { value: "5+", label: "Lini Usaha" },
-  { value: "100+", label: "Petani Terbina" },
+  { value: "9+", label: "Lini Usaha Terintegrasi" },
+  { value: "900", label: "Ekor Kambing/Hari (Kebutuhan Pasar)" },
+  { value: "5", label: "Misi Strategis" },
+  { value: "100+", label: "Binaan & Mitra Aktif" },
 ];
 
 const misi = [
@@ -15,7 +17,38 @@ const misi = [
   "Pengkayaan wawasan budidaya pertanian terintegrasi",
 ];
 
+const businessCore = [
+  "Jasa Penataan & Olah Lahan",
+  "Budidaya Melon & Hortikultura",
+  "Klaster Perkebunan Buah Tropis",
+  "Kawasan Usaha Ternak",
+  "Klaster Pupuk Organik",
+  "Perikanan Terpadu (Zero Waste)",
+  "Agrowisata",
+  "Pelatihan & Diklat",
+  "Produk Olahan & Kerajinan",
+  "Pemasaran & Kemitraan",
+];
+
 const AboutSection = () => {
+  const { data } = useGalleryCms();
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const images = useMemo(() => {
+    if (data && data.length > 0) {
+      return data.map((g) => g.image_url);
+    }
+    return ["/produk/Gambar%20Sinergitas%20(Tentang%20Kami)/Bu%20Ina.png"];
+  }, [data]);
+
+  useEffect(() => {
+    if (images.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % images.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [images.length]);
+
   return (
     <section id="tentang" className="section-padding bg-cream-gradient">
       <div className="max-w-7xl mx-auto">
@@ -23,7 +56,7 @@ const AboutSection = () => {
         <div className="mb-16">
           <p className="text-harvest font-body text-sm tracking-[0.25em] uppercase mb-3">Tentang Kami</p>
           <h2 className="font-heading text-3xl md:text-5xl font-bold text-foreground leading-tight max-w-3xl">
-            Membangun Masa Depan Pertanian Indonesia
+            Membangun Ekosistem Industri Pertanian Terintegrasi
           </h2>
         </div>
 
@@ -31,17 +64,24 @@ const AboutSection = () => {
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-start">
           {/* Image */}
           <div className="relative">
-            <img
-              src={aboutImg}
-              alt="Tangan petani menanam bibit di tanah yang subur"
-              className="w-full h-[500px] object-cover rounded-sm"
-              loading="lazy"
-              width={1280}
-              height={854}
-            />
-            <div className="absolute -bottom-6 -right-6 bg-canopy text-primary-foreground p-6 rounded-sm hidden md:block">
-              <p className="font-heading text-2xl font-bold">PT. Jagasura</p>
-              <p className="font-body text-sm text-primary-foreground/70">Agrotama Indonesia</p>
+            <div className="w-full h-[500px] overflow-hidden rounded-sm relative bg-soil/10">
+              <AnimatePresence mode="wait">
+                <motion.img
+                  key={currentIndex}
+                  src={images[currentIndex]}
+                  alt="Kegiatan lapangan Jagasura Agrotama bersama petani muda"
+                  className="absolute inset-0 w-full h-full object-cover"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 1 }}
+                  loading="lazy"
+                />
+              </AnimatePresence>
+            </div>
+            <div className="absolute -bottom-6 -right-6 bg-canopy text-primary-foreground p-6 rounded-sm hidden md:block z-10 shadow-lg">
+              <p className="font-heading text-2xl font-bold">PT Jagasura</p>
+              <p className="font-body text-sm text-primary-foreground/70">Agro Utama</p>
             </div>
           </div>
 
@@ -67,19 +107,35 @@ const AboutSection = () => {
             </div>
 
             <div className="bg-card p-6 rounded-sm border border-border">
-              <p className="font-body text-sm text-muted-foreground leading-relaxed italic">
-                "Regenerasi petani muda menjadi kunci ketahanan pangan Indonesia. Meski pertanian adalah pilar ekonomi nasional, partisipasi generasi milenial masih sangat rendah."
+              <p className="font-heading text-sm font-semibold text-harvest uppercase tracking-widest mb-2">Platform & Motto</p>
+              <p className="font-body text-foreground leading-relaxed italic mb-2">
+                "Menebar gagasan, menumbuhkan wawasan, meningkatkan kapasitas dan kesejahteraan."
+              </p>
+              <p className="font-heading text-harvest font-bold">
+                "Bertani itu Keren dan Berdaya Saing"
               </p>
             </div>
           </div>
         </div>
 
+        {/* Business Core */}
+        <div className="mt-12 sm:mt-20">
+          <h3 className="font-heading text-xl sm:text-2xl font-bold text-foreground mb-6 sm:mb-8 text-center">Ekosistem Bisnis Kami — Farm · Food · Mart</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-3">
+            {businessCore.map((item, i) => (
+              <div key={i} className="flex items-center justify-center text-center p-2.5 sm:p-4 bg-card rounded-sm border border-border hover:border-harvest transition-colors">
+                <p className="font-body text-xs sm:text-sm text-muted-foreground leading-snug">{item}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-20">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6 mt-8 sm:mt-12">
           {stats.map((s, i) => (
-            <div key={i} className="text-center p-6 bg-card rounded-sm border border-border">
-              <p className="font-heading text-3xl md:text-4xl font-bold text-harvest">{s.value}</p>
-              <p className="font-body text-sm text-muted-foreground mt-2">{s.label}</p>
+            <div key={i} className="flex flex-col justify-center text-center p-4 sm:p-6 bg-card rounded-sm border border-border">
+              <p className="font-heading text-2xl sm:text-3xl md:text-4xl font-bold text-harvest">{s.value}</p>
+              <p className="font-body text-xs sm:text-sm text-muted-foreground mt-1 sm:mt-2">{s.label}</p>
             </div>
           ))}
         </div>

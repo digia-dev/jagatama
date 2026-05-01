@@ -1,15 +1,22 @@
 <?php
 
+require_once __DIR__ . '/config.php';
+
 class Database {
-    private $host = 'localhost';
-    private $db_name = 'vade3664_jagatama';
-    private $username = 'vade3664_jagatama';
-    private $password = 'jagatamaxyanjay123zzking';
+    private $host;
+    private $db_name;
+    private $username;
+    private $password;
     private $conn;
 
     public function getConnection() {
         $this->conn = null;
         try {
+            $this->host = Config::get('DB_HOST', 'localhost');
+            $this->db_name = Config::get('DB_NAME', 'jagatama_db');
+            $this->username = Config::get('DB_USER', 'root');
+            $this->password = Config::get('DB_PASS', '');
+            
             $this->conn = new PDO(
                 'mysql:host=' . $this->host . ';dbname=' . $this->db_name . ';charset=utf8mb4',
                 $this->username,
@@ -17,7 +24,9 @@ class Database {
             );
             $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (PDOException $exception) {
-            echo 'Connection error: ' . $exception->getMessage();
+            // Log error but don't expose sensitive info in production
+            error_log('Connection error: ' . $exception->getMessage());
+            return null;
         }
         return $this->conn;
     }
@@ -36,7 +45,7 @@ function api_get_path() {
 }
 
 function project_secret() {
-    return 'jagatama-cms-hs256-key-change-in-production-2026';
+    return 'jagatama-cms-hs256-key-change-in-produdqwdqction-2026';
 }
 
 function project_base64url_encode($data) {
