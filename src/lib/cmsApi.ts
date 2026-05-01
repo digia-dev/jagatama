@@ -1,18 +1,27 @@
 export const CMS_TOKEN_KEY = "jagatama_admin_token";
 
+// Edit pada src/lib/cmsApi.ts
 export function getCmsBaseUrl() {
   const v = import.meta.env.VITE_API_BASE_URL;
   if (v && typeof v === "string" && v.length > 0) {
     return v.replace(/\/$/, "");
   }
-  // Default fallback
+
   const h = window.location.hostname;
-  const isLocal = h === "localhost" || h === "127.0.0.1" || h.startsWith("192.168.") || h.startsWith("10.") || h.startsWith("0.0.0.0");
+  const p = window.location.protocol;
+
+  // Jika sedang dijalankan secara lokal (localhost)
+  const isLocal = h === "localhost" || h === "127.0.0.1" || h.startsWith("192.168.") || h.startsWith("10.");
+
   if (isLocal) {
-    return `http://${h}:8000`;
+    return `http://${h}:8000`; // Mengarah ke PHP lokal
   }
-  return "https://jagatama.id";
+
+  // Jika sudah di-deploy, arahkan ke folder /jagatama di domain yang sama
+  // ATAU ganti URL di bawah ini dengan alamat hosting PHP Anda yang baru
+  return `${p}//${h}/jagatama`;
 }
+
 
 export function getAdminToken() {
   return localStorage.getItem(CMS_TOKEN_KEY);
