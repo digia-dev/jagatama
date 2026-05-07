@@ -32,6 +32,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { toast } from "@/components/ui/sonner";
+import MediaLibraryDialog from "@/components/admin/MediaLibraryDialog";
 
 type SlideEditor = Omit<HeroSlideApiRow, "id" | "created_at" | "updated_at">;
 
@@ -252,8 +253,11 @@ const AdminHeroPage = () => {
           <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-6 py-4">
             {draft.image_url ? <img src={draft.image_url} alt="" className="max-h-44 w-full rounded-md object-cover" /> : null}
             <div className="space-y-2">
-              <Label>URL gambar</Label>
-              <Input value={draft.image_url} onChange={(e) => setD("image_url", e.target.value)} placeholder="https://..." />
+              <Label>Latar Belakang (Gambar)</Label>
+              <div className="flex gap-2">
+                <Input className="flex-1" value={draft.image_url} onChange={(e) => setD("image_url", e.target.value)} placeholder="Pilih dari galeri..." />
+                <MediaLibraryDialog onSelect={(url) => setD("image_url", url)} />
+              </div>
               <Input type="file" accept="image/*" className="cursor-pointer" disabled={uploadingSlide} onChange={onSlideFile} />
             </div>
             <div className="space-y-2">

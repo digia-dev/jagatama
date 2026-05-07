@@ -66,6 +66,14 @@ export type GalleryApiRow = {
   alt_text: string;
   sort_order: number;
   is_tall: number;
+  tags?: string;
+  title?: string;
+  parent_id?: number | null;
+  is_folder?: number;
+  file_type?: string;
+  file_size?: number;
+  mime_type?: string | null;
+  created_at?: string;
 };
 
 export function mapProductRowToCatalog(p: ProductApiRow): CatalogProduct {
@@ -204,7 +212,6 @@ export function useHeroCms() {
     queryKey: ["cms", "hero"],
     queryFn: async () => {
       const data = await cmsFetch("hero_slides.php");
-      // The API returns an array directly, but normalizeHeroPayload expects { slides: [...] } or { ...legacy, slides: [...] }
       if (Array.isArray(data)) {
         return normalizeHeroPayload({ slides: data });
       }
@@ -246,10 +253,9 @@ export function useProductsCatalogMerged(): { products: CatalogProduct[]; fromAp
   // If error or no data, we use fallbacks
   if (isError || !data) return { products: fallbackProducts, fromApi: false, pending: false, error: true };
   
-  // If we have data but it's empty, we might still want to show fallbacks OR an empty state.
-  // User says "not matching data", so we should show EXACTLY what is in CMS if we have data.
+  // If we have data but it's empty, we show an empty list (full MySQL mode)
   if (data.length === 0) {
-     return { products: fallbackProducts, fromApi: false, pending: false, error: false };
+     return { products: [], fromApi: true, pending: false, error: false };
   }
 
   const products: CatalogProduct[] = data.map(p => ({
@@ -299,8 +305,9 @@ export function useArticlesMerged(): { articles: Article[]; fromApi: boolean; pe
   if (isPending) return { articles: fallbackArticles, fromApi: false, pending: true, error: false };
   if (isError || !data) return { articles: fallbackArticles, fromApi: false, pending: false, error: true };
   
+  // Full MySQL mode: if data is empty, return empty list
   if (data.length === 0) {
-    return { articles: fallbackArticles, fromApi: false, pending: false, error: false };
+    return { articles: [], fromApi: true, pending: false, error: false };
   }
 
   const articles: Article[] = data.map(mapSummaryToArticleCard);
@@ -327,12 +334,29 @@ export function useGalleryCms() {
     queryKey: ["cms", "gallery"],
     queryFn: async () => {
       const data = await cmsFetch("gallery.php");
-      if (!Array.isArray(data)) throw new Error("invalid");
-      return data;
+      if (!Array.isArray(data)) return [];
+      return data as GalleryApiRow[];
     },
     retry: 1,
     staleTime: 60_000,
   });
+}
+
+export function useGalleryMerged() {
+  const { data, isPending, isError } = useQuery({
+    queryKey: ["cms", "gallery"],
+    queryFn: async () => {
+      const data = await cmsFetch("gallery.php");
+      if (!Array.isArray(data)) throw new Error("invalid");
+      return data as GalleryApiRow[];
+    },
+    retry: 1,
+    staleTime: 60_000,
+  });
+
+  if (isPending) return { images: [], fromApi: false, pending: true, error: false };
+  if (isError || !data) return { images: [], fromApi: false, pending: false, error: true };
+  return { images: data, fromApi: true, pending: false, error: false };
 }
 
 export function useSettingsCms() {
@@ -363,6 +387,66 @@ export function useUpdateSettingsMutation() {
       qc.invalidateQueries({ queryKey: ["cms", "settings"] });
     },
   });
+}
+
+export type TestimonialApiRow = {
+  id: number;
+  name: string;
+  role: string;
+  content: string;
+  avatar_url: string;
+  rating: number;
+  is_active: number;
+  sort_order: number;
+};
+
+export type TeamMemberApiRow = {
+  id: number;
+  name: string;
+  position: string;
+  department: string;
+  bio: string;
+  avatar_url: string;
+  sort_order: number;
+  is_active: number;
+};
+
+export function useTestimonialsCms() {
+  return useQuery<TestimonialApiRow[]>({
+    queryKey: ["cms", "testimonials"],
+    queryFn: async () => {
+      const data = await cmsFetch("testimonials.php?active=1");
+      if (!Array.isArray(data)) return [];
+      return data as TestimonialApiRow[];
+    },
+    staleTime: 60_000,
+  });
+}
+
+export function useTestimonialsMerged() {
+  const { data, isPending, isError } = useTestimonialsCms();
+  if (isPending) return { testimonials: [], pending: true };
+  if (isError || !data) return { testimonials: [], error: true };
+  return { testimonials: data, fromApi: true };
+}
+
+export function useTeamCms() {
+  return useQuery<TeamMemberApiRow[]>({
+    queryKey: ["cms", "team"],
+    queryFn: async () => {
+      const data = await cmsFetch("team.php?active=1");
+      if (!Array.isArray(data)) return [];
+      return data as TeamMemberApiRow[];
+    },
+    staleTime: 60_000,
+  });
+}
+
+export function useTeamMerged() {
+  const { data, isPending, isError } = useTeamCms();
+  if (isPending) return { members: [], pending: true };
+  if (isError || !data) return { members: [], error: true };
+  return { members: data, fromApi: true };
 }
 
 export type WhatsAppContactApiRow = {

@@ -1,5 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
-import { cmsFetch } from "@/lib/cmsApi";
+import { useTestimonialsCms } from "@/hooks/useCmsQueries";
 import { Star } from "lucide-react";
 import {
   Carousel,
@@ -10,67 +9,9 @@ import {
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 
-type Testimonial = {
-  id: number;
-  name: string;
-  role: string;
-  content: string;
-  avatar_url: string;
-  rating: number;
-  is_active: number;
-  sort_order: number;
-};
-
-// Static fallback data
-const fallbackTestimonials: Testimonial[] = [
-  {
-    id: 1,
-    name: "H. Umi Azizah",
-    role: "Bupati Kabupaten Tegal",
-    content: "Program Jagasura Agrotama sangat mendukung ketahanan pangan dan kemandirian ekonomi petani muda di Tegal. Ekosistem pertanian terintegrasi seperti ini perlu terus dikembangkan.",
-    avatar_url: "/produk/Gambar%20Sinergitas%20(Tentang%20Kami)/Bupati%20Tegal.png",
-    rating: 5,
-    is_active: 1,
-    sort_order: 1,
-  },
-  {
-    id: 2,
-    name: "Rektor UMT",
-    role: "Universitas Muhammadiyah Tegal",
-    content: "Kolaborasi antara perguruan tinggi dan lembaga pertanian seperti Jagasura adalah kunci mencetak petani muda yang berpendidikan, inovatif, dan mandiri.",
-    avatar_url: "/produk/Gambar%20Sinergitas%20(Tentang%20Kami)/Rektor%20UMT.jpg",
-    rating: 5,
-    is_active: 1,
-    sort_order: 2,
-  },
-  {
-    id: 3,
-    name: "Pimpinan Baznaz",
-    role: "Baznaz Cirebon",
-    content: "Melalui program zakat produktif, kemitraan dengan Jagasura Agrotama menjadi model pemberdayaan ekonomi umat yang nyata dan berkelanjutan.",
-    avatar_url: "/produk/Gambar%20Sinergitas%20(Tentang%20Kami)/Baznaz%20Cirebon.png",
-    rating: 5,
-    is_active: 1,
-    sort_order: 3,
-  },
-];
-
 const TestimonialSection = () => {
-  const { data } = useQuery<Testimonial[]>({
-    queryKey: ["cms", "testimonials", "public"],
-    queryFn: async () => {
-      try {
-        const d = await cmsFetch("testimonials.php?active=1");
-        if (!Array.isArray(d) || d.length === 0) return fallbackTestimonials;
-        return d as Testimonial[];
-      } catch {
-        return fallbackTestimonials;
-      }
-    },
-    staleTime: 60_000,
-  });
-
-  const testimonials = data ?? fallbackTestimonials;
+  const { data } = useTestimonialsCms();
+  const testimonials = data ?? [];
 
   return (
     <section id="testimoni" className="section-padding bg-cream-gradient">

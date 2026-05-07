@@ -62,26 +62,11 @@ const AboutSection = () => {
 
         {/* Split layout */}
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-start">
-          {/* Image */}
-          <div className="relative">
-            <div className="w-full h-[500px] overflow-hidden rounded-sm relative bg-soil/10">
-              <AnimatePresence mode="wait">
-                <motion.img
-                  key={currentIndex}
-                  src={images[currentIndex]}
-                  alt="Kegiatan lapangan Jagasura Agrotama bersama petani muda"
-                  className="absolute inset-0 w-full h-full object-cover"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 1 }}
-                  loading="lazy"
-                />
-              </AnimatePresence>
-            </div>
+          {/* Galeri */}
+          
             <div className="absolute -bottom-6 -right-6 bg-canopy text-primary-foreground p-6 rounded-sm hidden md:block z-10 shadow-lg">
               <p className="font-heading text-2xl font-bold">PT Jagasura</p>
-              <p className="font-body text-sm text-primary-foreground/70">Agro Utama</p>
+              <p className="font-body text-sm text-primary-foreground/70">Agrotama</p>
             </div>
           </div>
 
@@ -139,7 +124,6 @@ const AboutSection = () => {
             </div>
           ))}
         </div>
-      </div>
     </section>
   );
 };

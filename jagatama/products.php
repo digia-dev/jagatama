@@ -7,7 +7,7 @@ function products_read_all($db) {
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
     foreach ($rows as &$row) {
         $pid = (int) $row['id'];
-        $v = $db->prepare('SELECT id, label, price, sort_order FROM product_variants WHERE product_id = ? ORDER BY sort_order ASC, id ASC');
+        $v = $db->prepare('SELECT id, label, price, image_url, sort_order FROM product_variants WHERE product_id = ? ORDER BY sort_order ASC, id ASC');
         $v->execute([$pid]);
         $row['variants'] = $v->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -21,7 +21,7 @@ function products_read_one($db, $id) {
     if (!$row) {
         return null;
     }
-    $v = $db->prepare('SELECT id, label, price, sort_order FROM product_variants WHERE product_id = ? ORDER BY sort_order ASC, id ASC');
+    $v = $db->prepare('SELECT id, label, price, image_url, sort_order FROM product_variants WHERE product_id = ? ORDER BY sort_order ASC, id ASC');
     $v->execute([(int) $row['id']]);
     $row['variants'] = $v->fetchAll(PDO::FETCH_ASSOC);
     return $row;
@@ -33,20 +33,22 @@ function products_replace_variants($db, $productId, $variants) {
     if (!is_array($variants) || count($variants) === 0) {
         return;
     }
-    $ins = $db->prepare('INSERT INTO product_variants (product_id, label, price, sort_order) VALUES (?, ?, ?, ?)');
+    $ins = $db->prepare('INSERT INTO product_variants (product_id, label, price, image_url, sort_order) VALUES (?, ?, ?, ?, ?)');
     $order = 0;
     foreach ($variants as $item) {
         if (is_object($item)) {
             $label = isset($item->label) ? trim((string) $item->label) : '';
             $price = isset($item->price) ? (int) $item->price : 0;
+            $image_url = isset($item->image_url) ? (string) $item->image_url : '';
         } else {
             $label = isset($item['label']) ? trim((string) $item['label']) : '';
             $price = isset($item['price']) ? (int) $item['price'] : 0;
+            $image_url = isset($item['image_url']) ? (string) $item['image_url'] : '';
         }
         if ($label === '') {
             continue;
         }
-        $ins->execute([$productId, $label, $price, $order]);
+        $ins->execute([$productId, $label, $price, $image_url, $order]);
         $order++;
     }
 }

@@ -118,128 +118,135 @@ const CartSheet = () => {
         </div>
 
         {step === "cart" ? (
-          <>
-            <ScrollArea className="h-[min(42vh,300px)] shrink-0 px-6">
-              <div className="space-y-4 py-4">
-                {lines.length === 0 ? (
-                  <EmptyState
-                    title="Keranjang Kosong"
-                    description="Sepertinya Anda belum menambahkan produk apapun ke keranjang."
-                    action="Mulai Belanja"
-                    onAction={() => setCartOpen(false)}
-                  />
-                ) : (
-                  lines.map((line) => (
-                    <div key={`${line.productId}-${line.variantId || "main"}`} className="space-y-2">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="min-w-0 flex-1">
-                          <p className="font-body text-sm font-medium leading-snug text-foreground">
-                            {line.title}
-                            {line.variantLabel && (
-                              <span className="ml-1 text-xs text-harvest">({line.variantLabel})</span>
-                            )}
+          <div className="flex flex-1 flex-col overflow-hidden">
+            <ScrollArea className="flex-1 px-6">
+              <div className="space-y-6 py-6">
+                {/* Items List */}
+                <div className="space-y-4">
+                  {lines.length === 0 ? (
+                    <EmptyState
+                      title="Keranjang Kosong"
+                      description="Sepertinya Anda belum menambahkan produk apapun ke keranjang."
+                      action="Mulai Belanja"
+                      onAction={() => setCartOpen(false)}
+                    />
+                  ) : (
+                    lines.map((line) => (
+                      <div key={`${line.productId}-${line.variantId || "main"}`} className="space-y-2">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0 flex-1">
+                            <p className="font-body text-sm font-medium leading-snug text-foreground">
+                              {line.title}
+                              {line.variantLabel && (
+                                <span className="ml-1 text-xs text-harvest">({line.variantLabel})</span>
+                              )}
+                            </p>
+                            <p className="font-body text-xs text-muted-foreground">{formatIdr(line.unitPrice)} / unit</p>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 shrink-0 text-muted-foreground hover:text-destructive"
+                            onClick={() => removeProduct(line.productId, line.variantId)}
+                            aria-label={`Hapus ${line.title} dari keranjang`}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-1 rounded-md border border-border bg-background p-0.5">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => decrement(line.productId, line.variantId)}
+                              aria-label="Kurangi jumlah"
+                            >
+                              <Minus className="h-4 w-4" />
+                            </Button>
+                            <span className="min-w-[2rem] text-center font-body text-sm font-medium tabular-nums">
+                              {line.qty}
+                            </span>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => increment(line.productId, line.variantId)}
+                              aria-label="Tambah jumlah"
+                            >
+                              <Plus className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          <p className="font-body text-sm font-semibold tabular-nums text-foreground">
+                            {formatIdr(line.unitPrice * line.qty)}
                           </p>
-                          <p className="font-body text-xs text-muted-foreground">{formatIdr(line.unitPrice)} / unit</p>
                         </div>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 shrink-0 text-muted-foreground hover:text-destructive"
-                          onClick={() => removeProduct(line.productId, line.variantId)}
-                          aria-label={`Hapus ${line.title} dari keranjang`}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <Separator className="bg-border" />
                       </div>
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-1 rounded-md border border-border bg-background p-0.5">
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                            onClick={() => decrement(line.productId, line.variantId)}
-                            aria-label="Kurangi jumlah"
-                          >
-                            <Minus className="h-4 w-4" />
-                          </Button>
-                          <span className="min-w-[2rem] text-center font-body text-sm font-medium tabular-nums">
-                            {line.qty}
-                          </span>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                            onClick={() => increment(line.productId, line.variantId)}
-                            aria-label="Tambah jumlah"
-                          >
-                            <Plus className="h-4 w-4" />
-                          </Button>
-                        </div>
-                        <p className="font-body text-sm font-semibold tabular-nums text-foreground">
-                          {formatIdr(line.unitPrice * line.qty)}
-                        </p>
+                    ))
+                  )}
+                </div>
+
+                {/* Form Section */}
+                {lines.length > 0 && (
+                  <div className="space-y-5 pt-2">
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="cart-name">Nama penerima</Label>
+                        <Input
+                          id="cart-name"
+                          value={recipientName}
+                          onChange={(e) => setRecipientName(e.target.value)}
+                          placeholder="Nama lengkap"
+                          autoComplete="name"
+                        />
                       </div>
-                      <Separator className="bg-border" />
+                      <div className="space-y-2">
+                        <Label htmlFor="cart-address">Alamat pengiriman</Label>
+                        <Textarea
+                          id="cart-address"
+                          value={shippingAddress}
+                          onChange={(e) => setShippingAddress(e.target.value)}
+                          placeholder="Jalan, RT/RW, kecamatan, kota, kode pos"
+                          className="min-h-[100px] resize-none"
+                          autoComplete="street-address"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="cart-admin">Admin WhatsApp</Label>
+                        <Select value={adminWaId} onValueChange={setAdminWaId}>
+                          <SelectTrigger id="cart-admin" className="w-full">
+                            <SelectValue placeholder="Pilih admin" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {contacts.map((c) => (
+                              <SelectItem key={c.phone} value={c.phone}>
+                                {c.label} · {c.phone}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
-                  ))
+                  </div>
                 )}
               </div>
             </ScrollArea>
 
-            <div className="space-y-4 border-t border-border bg-background px-6 py-5">
-              <div className="flex items-center justify-between font-body text-sm">
-                <span className="text-muted-foreground">Subtotal</span>
-                <span className="text-lg font-semibold tabular-nums text-foreground">{formatIdr(subtotal)}</span>
+            {/* Bottom Fixed Footer */}
+            <div className="border-t border-border bg-background px-6 py-5 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+              <div className="mb-4 flex items-center justify-between font-body text-sm">
+                <span className="text-muted-foreground font-medium">Subtotal</span>
+                <span className="text-lg font-bold tabular-nums text-foreground">{formatIdr(subtotal)}</span>
               </div>
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2 sm:col-span-1">
-                  <Label htmlFor="cart-name">Nama penerima</Label>
-                  <Input
-                    id="cart-name"
-                    value={recipientName}
-                    onChange={(e) => setRecipientName(e.target.value)}
-                    placeholder="Nama lengkap"
-                    autoComplete="name"
-                  />
-                </div>
-                <div className="space-y-2 sm:col-span-1">
-                  <Label htmlFor="cart-address">Alamat pengiriman</Label>
-                  <Textarea
-                    id="cart-address"
-                    value={shippingAddress}
-                    onChange={(e) => setShippingAddress(e.target.value)}
-                    placeholder="Jalan, RT/RW, kecamatan, kota, kode pos"
-                    className="min-h-[100px] resize-y sm:min-h-[120px]"
-                    autoComplete="street-address"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="cart-admin">Admin WhatsApp</Label>
-                <Select value={adminWaId} onValueChange={setAdminWaId}>
-                  <SelectTrigger id="cart-admin" className="w-full">
-                    <SelectValue placeholder="Pilih admin" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {contacts.map((c) => (
-                      <SelectItem key={c.phone} value={c.phone}>
-                        {c.label} · {c.phone}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
+              <div className="flex flex-col gap-3">
                 <Button
                   type="button"
                   variant="outline"
-                  className="w-full sm:w-auto"
+                  className="w-full"
                   disabled={lines.length === 0}
                   onClick={() => {
                     clearCart();
@@ -248,12 +255,17 @@ const CartSheet = () => {
                 >
                   Kosongkan keranjang
                 </Button>
-                <Button type="button" className="w-full sm:w-auto bg-harvest hover:bg-harvest/90 text-white" onClick={validateAndNext}>
+                <Button 
+                  type="button" 
+                  className="w-full bg-harvest hover:bg-harvest/90 text-white font-bold py-6" 
+                  onClick={validateAndNext}
+                  disabled={lines.length === 0}
+                >
                   Lanjut ke Konfirmasi
                 </Button>
               </div>
             </div>
-          </>
+          </div>
         ) : (
           <div className="flex flex-1 flex-col overflow-hidden">
             <ScrollArea className="flex-1 px-6">

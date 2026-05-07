@@ -17,7 +17,14 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import { toast } from "@/components/ui/sonner";
-import { Star } from "lucide-react";
+import { Star, LayoutGrid, List, MoreVertical, Edit, Trash2, Quote } from "lucide-react";
+import MediaLibraryDialog from "@/components/admin/MediaLibraryDialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 type Testimonial = {
   id: number;
@@ -47,6 +54,7 @@ const AdminTestimoniPage = () => {
   const [form, setForm] = useState(emptyForm());
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   const openAdd = () => { setEditingId(null); setForm(emptyForm()); setDialogOpen(true); };
   const openEdit = (t: Testimonial) => {
@@ -87,63 +95,134 @@ const AdminTestimoniPage = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="font-heading text-2xl font-bold text-foreground">Testimoni</h1>
-        <Button onClick={openAdd}>Tambah Testimoni</Button>
+        <div className="flex items-center gap-2">
+          <div className="flex bg-muted p-1 rounded-md mr-2">
+            <Button variant={viewMode === "grid" ? "secondary" : "ghost"} size="icon" className="h-8 w-8" onClick={() => setViewMode("grid")}>
+              <LayoutGrid className="h-4 w-4" />
+            </Button>
+            <Button variant={viewMode === "list" ? "secondary" : "ghost"} size="icon" className="h-8 w-8" onClick={() => setViewMode("list")}>
+              <List className="h-4 w-4" />
+            </Button>
+          </div>
+          <Button size="sm" onClick={openAdd}>Tambah Testimoni</Button>
+        </div>
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-border bg-card">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-16">Foto</TableHead>
-              <TableHead>Nama & Peran</TableHead>
-              <TableHead className="hidden md:table-cell">Konten</TableHead>
-              <TableHead className="w-20 text-center">Rating</TableHead>
-              <TableHead className="w-20 text-center">Aktif</TableHead>
-              <TableHead className="text-right">Aksi</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isPending ? (
-              <TableRow><TableCell colSpan={6} className="text-muted-foreground">Memuat…</TableCell></TableRow>
-            ) : (rows ?? []).length === 0 ? (
-              <TableRow><TableCell colSpan={6} className="text-muted-foreground">Belum ada testimoni.</TableCell></TableRow>
-            ) : (rows ?? []).map(t => (
-              <TableRow key={t.id}>
-                <TableCell>
-                  {t.avatar_url ? (
-                    <img src={t.avatar_url} alt="" className="h-12 w-12 rounded-full object-cover ring-2 ring-border" />
-                  ) : (
-                    <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center text-xs text-muted-foreground">–</div>
-                  )}
-                </TableCell>
-                <TableCell>
-                  <p className="font-medium text-foreground">{t.name}</p>
-                  <p className="text-xs text-muted-foreground">{t.role}</p>
-                </TableCell>
-                <TableCell className="hidden md:table-cell">
-                  <p className="line-clamp-2 text-sm text-muted-foreground">{t.content}</p>
-                </TableCell>
-                <TableCell className="text-center">
-                  <div className="flex justify-center gap-0.5">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star key={i} className={`h-3.5 w-3.5 ${i < t.rating ? "fill-harvest text-harvest" : "text-border"}`} />
-                    ))}
+      {isPending ? (
+        <div className="flex h-64 items-center justify-center text-muted-foreground">Memuat…</div>
+      ) : (rows ?? []).length === 0 ? (
+        <div className="flex h-64 items-center justify-center border-2 border-dashed border-border rounded-xl bg-muted/30 text-muted-foreground text-sm">
+          Belum ada testimoni.
+        </div>
+      ) : viewMode === "grid" ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {(rows ?? []).map((t) => (
+            <div key={t.id} className={`group relative bg-card p-5 rounded-2xl border ${t.is_active ? "border-border shadow-sm" : "border-dashed border-muted bg-muted/10 opacity-70"} hover:shadow-md transition-all cursor-pointer`} onClick={() => openEdit(t)}>
+              <div className="absolute top-3 right-3" onClick={e => e.stopPropagation()}>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-7 w-7">
+                      <MoreVertical className="h-3.5 w-3.5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => openEdit(t)}>
+                      <Edit className="h-3.5 w-3.5 mr-2" /> Ubah
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="text-destructive" onClick={() => setDeleteId(t.id)}>
+                      <Trash2 className="h-3.5 w-3.5 mr-2" /> Hapus
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+
+              <div className="flex items-center gap-3 mb-3">
+                {t.avatar_url ? (
+                  <img src={t.avatar_url} alt="" className="h-11 w-11 rounded-full object-cover ring-2 ring-harvest/10" />
+                ) : (
+                  <div className="h-11 w-11 rounded-full bg-harvest/5 flex items-center justify-center text-harvest/40">
+                    <Quote className="h-5 w-5" />
                   </div>
-                </TableCell>
-                <TableCell className="text-center">
-                  <span className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${t.is_active ? "bg-green-100 text-green-700" : "bg-muted text-muted-foreground"}`}>
-                    {t.is_active ? "✓" : "✗"}
-                  </span>
-                </TableCell>
-                <TableCell className="whitespace-nowrap text-right">
-                  <Button variant="outline" size="sm" className="mr-2" onClick={() => openEdit(t)}>Ubah</Button>
-                  <Button variant="destructive" size="sm" onClick={() => setDeleteId(t.id)}>Hapus</Button>
-                </TableCell>
+                )}
+                <div className="min-w-0">
+                  <h3 className="font-bold text-sm leading-tight truncate">{t.name}</h3>
+                  <p className="text-[10px] text-muted-foreground truncate">{t.role}</p>
+                </div>
+              </div>
+
+              <div className="flex gap-0.5 mb-2.5">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star key={i} className={`h-3 w-3 ${i < t.rating ? "fill-harvest text-harvest" : "text-border"}`} />
+                ))}
+              </div>
+
+              <p className="text-xs text-muted-foreground line-clamp-3 italic leading-relaxed">
+                "{t.content}"
+              </p>
+
+              <div className="mt-4 pt-3 border-t border-border/40 flex items-center justify-between">
+                <span className="text-[8px] text-muted-foreground uppercase tracking-wider">Urutan: {t.sort_order}</span>
+                <Badge variant={t.is_active ? "success" : "secondary"} className="text-[8px] h-3.5 px-1.5">
+                  {t.is_active ? "Aktif" : "Off"}
+                </Badge>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="overflow-hidden rounded-lg border border-border bg-card text-sm">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-muted/50">
+                <TableHead className="w-16">Foto</TableHead>
+                <TableHead>Nama & Peran</TableHead>
+                <TableHead className="hidden md:table-cell">Konten</TableHead>
+                <TableHead className="w-20 text-center">Rating</TableHead>
+                <TableHead className="w-20 text-center">Aktif</TableHead>
+                <TableHead className="text-right">Aksi</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+            </TableHeader>
+            <TableBody>
+              {(rows ?? []).map(t => (
+                <TableRow key={t.id} className="hover:bg-muted/30 cursor-pointer" onClick={() => openEdit(t)}>
+                  <TableCell>
+                    {t.avatar_url ? (
+                      <img src={t.avatar_url} alt="" className="h-10 w-10 rounded-full object-cover ring-2 ring-border" />
+                    ) : (
+                      <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center text-xs text-muted-foreground">–</div>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <p className="font-medium text-foreground text-sm">{t.name}</p>
+                    <p className="text-[10px] text-muted-foreground">{t.role}</p>
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell">
+                    <p className="line-clamp-1 text-xs text-muted-foreground">{t.content}</p>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <div className="flex justify-center gap-0.5">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <Star key={i} className={`h-3 w-3 ${i < t.rating ? "fill-harvest text-harvest" : "text-border"}`} />
+                      ))}
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <span className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold ${t.is_active ? "bg-green-100 text-green-700" : "bg-muted text-muted-foreground"}`}>
+                      {t.is_active ? "✓" : "✗"}
+                    </span>
+                  </TableCell>
+                  <TableCell className="whitespace-nowrap text-right">
+                    <div className="flex items-center justify-end gap-1" onClick={e => e.stopPropagation()}>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-harvest" onClick={() => openEdit(t)}><Edit className="h-4 w-4" /></Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => setDeleteId(t.id)}><Trash2 className="h-4 w-4" /></Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
@@ -165,8 +244,11 @@ const AdminTestimoniPage = () => {
             </div>
             <div className="space-y-2">
               <Label>Foto (Opsional)</Label>
-              {form.avatar_url && <img src={form.avatar_url} alt="" className="h-16 w-16 rounded-full object-cover" />}
-              <Input value={form.avatar_url} onChange={e => setForm(p => ({ ...p, avatar_url: e.target.value }))} placeholder="https://... atau upload" />
+              {form.avatar_url && <img src={form.avatar_url} alt="" className="h-16 w-16 rounded-full object-cover ring-2 ring-border shadow-sm mb-2" />}
+              <div className="flex gap-2">
+                <Input className="flex-1" value={form.avatar_url} onChange={e => setForm(p => ({ ...p, avatar_url: e.target.value }))} placeholder="Pilih dari galeri atau upload..." />
+                <MediaLibraryDialog onSelect={(url) => setForm(p => ({ ...p, avatar_url: url }))} />
+              </div>
               <Input type="file" accept="image/*" disabled={uploading} onChange={onFile} />
             </div>
             <div className="grid grid-cols-3 gap-3">
@@ -209,6 +291,15 @@ const AdminTestimoniPage = () => {
       </AlertDialog>
     </div>
   );
+};
+
+const Badge = ({ children, variant = "secondary", className = "" }: { children: React.ReactNode, variant?: "secondary" | "success" | "outline", className?: string }) => {
+  const styles = {
+    secondary: "bg-muted text-muted-foreground",
+    success: "bg-green-100 text-green-700",
+    outline: "border border-border text-muted-foreground"
+  };
+  return <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${styles[variant]} ${className}`}>{children}</span>;
 };
 
 export default AdminTestimoniPage;

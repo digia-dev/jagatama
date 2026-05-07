@@ -58,7 +58,7 @@ const Footer = () => {
               Menebar gagasan, menumbuhkan wawasan, meningkatkan kapasitas dan kesejahteraan.
             </p>
             <p className="mb-1 font-body text-xs text-primary-foreground/40">
-              Jl. Gili Turi, Dukuhwaru, Tegal, Jawa Tengah
+              {settings?.address || "Jl. Gili Turi, Dukuhwaru, Tegal, Jawa Tengah"}
             </p>
             <p className="font-heading text-sm italic text-harvest">
               "Bertani itu Keren dan Berdaya Saing"

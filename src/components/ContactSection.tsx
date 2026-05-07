@@ -2,6 +2,7 @@ import { MapPin, Phone, Send } from "lucide-react";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { cmsFetch } from "@/lib/cmsApi";
+import { useSettingsCms } from "@/hooks/useCmsQueries";
 
 type WaContact = { id: number; label: string; phone: string; department: string; is_primary: number; is_active: number; };
 
@@ -18,6 +19,7 @@ const ContactSection = () => {
     },
     staleTime: 300_000,
   });
+  const { data: settings } = useSettingsCms();
 
   const contacts = waContacts ?? [];
   const primaryContact = contacts.find(c => c.is_primary) ?? contacts[0];
@@ -46,8 +48,7 @@ const ContactSection = () => {
                 <h3 className="font-heading text-lg font-semibold text-foreground">Lokasi</h3>
               </div>
               <p className="font-body text-muted-foreground leading-relaxed">
-                Jalan Gili Turi, Dukuhwaru, Tegal,<br />
-                Jawa Tengah, Indonesia
+                {settings?.address || "Jalan Gili Turi, Dukuhwaru, Tegal, Jawa Tengah, Indonesia"}
               </p>
             </div>
 
@@ -82,7 +83,7 @@ const ContactSection = () => {
             {/* Map embed */}
             <div className="rounded-sm overflow-hidden border border-border h-[250px]">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15844.5!2d109.1!3d-6.9!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNsKwNTQnMDAuMCJTIDEwOcKwMDYnMDAuMCJF!5e0!3m2!1sen!2sid!4v1"
+                src={settings?.maps_url || "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15844.5!2d109.1!3d-6.9!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNsKwNTQnMDAuMCJTIDEwOcKwMDYnMDAuMCJF!5e0!3m2!1sen!2sid!4v1"}
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}

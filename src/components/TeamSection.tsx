@@ -1,5 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
-import { cmsFetch } from "@/lib/cmsApi";
+import { useTeamCms } from "@/hooks/useCmsQueries";
 
 type TeamMemberApi = {
   id: number;
@@ -11,25 +10,6 @@ type TeamMemberApi = {
   sort_order: number;
   is_active: number;
 };
-
-// Static fallback – original hardcoded data
-interface TeamMember { name: string; role: string; }
-const timPertanian: TeamMember[] = [
-  { name: "Nurhadi Kamaluddin, S.E., M.Ak.", role: "Komisaris" },
-  { name: "M. Abdullah Azzam, S.H", role: "Komisaris" },
-  { name: "Akhmad Otong Turmudi, S.M.", role: "Direktur" },
-  { name: "Sely Maulidia, Amd. Ak", role: "Finance" },
-  { name: "Fiqih Puji Winarsih, S.Si., M.M.", role: "General Affair" },
-  { name: "M. Helmi Maulana", role: "On Farm Manager" },
-  { name: "Bina Zidan M", role: "On Farm Manager" },
-];
-const timPeternakan: TeamMember[] = [
-  { name: "Mohamad Tarmuji", role: "Komisaris" },
-  { name: "M. Fadhmi Amirullah", role: "Direktur" },
-  { name: "Siti Khasanah", role: "Manager Finance" },
-  { name: "Samrotul Jannah", role: "Manager Operasional" },
-  { name: "Nurhadi Kamaluddin, S.E., M.Ak.", role: "Manager Investasi" },
-];
 
 function initialsFromName(name: string): string {
   const main = name.split(",")[0].trim();
@@ -78,47 +58,8 @@ const ApiTeamCard = ({ member, index }: { member: TeamMemberApi; index: number }
   );
 };
 
-// Card for static fallback member
-const StaticTeamCard = ({ member, index }: { member: TeamMember; index: number }) => {
-  const initials = initialsFromName(member.name);
-  return (
-    <article
-      className="group relative overflow-hidden rounded-2xl border border-primary-foreground/10 bg-primary-foreground/[0.06] backdrop-blur-sm shadow-lg shadow-black/10 transition-all duration-300 hover:border-harvest/45 hover:bg-primary-foreground/[0.1] hover:shadow-xl hover:shadow-harvest/5 hover:-translate-y-1"
-      style={{ animationDelay: `${index * 0.05}s` }}
-    >
-      <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-harvest via-harvest/80 to-canopy-light/60 opacity-90" aria-hidden />
-      <div className="relative pl-7 pr-5 py-5 md:py-6 flex flex-col sm:flex-row sm:items-center gap-4">
-        <div
-          className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-canopy/35 via-canopy/25 to-harvest/25 text-sm font-heading font-bold tracking-tight text-primary-foreground shadow-inner ring-1 ring-primary-foreground/10 transition-transform duration-300 group-hover:scale-105"
-          aria-hidden
-        >
-          {initials}
-        </div>
-        <div className="min-w-0 flex-1">
-          <p className="mb-2 inline-flex max-w-full items-center rounded-full border border-harvest/25 bg-harvest/10 px-2.5 py-0.5 font-body text-[10px] font-semibold uppercase tracking-[0.2em] text-harvest">
-            {member.role}
-          </p>
-          <h3 className="font-heading text-base font-semibold leading-snug text-primary-foreground md:text-lg">{member.name}</h3>
-        </div>
-      </div>
-    </article>
-  );
-};
-
 const TeamSection = () => {
-  const { data: cmsMembers } = useQuery<TeamMemberApi[]>({
-    queryKey: ["cms", "team", "public"],
-    queryFn: async () => {
-      try {
-        const d = await cmsFetch("team.php?active=1");
-        if (!Array.isArray(d) || d.length === 0) return [];
-        return d as TeamMemberApi[];
-      } catch {
-        return [];
-      }
-    },
-    staleTime: 60_000,
-  });
+  const { data: cmsMembers } = useTeamCms();
 
   const useCmsData = cmsMembers && cmsMembers.length > 0;
 
@@ -165,30 +106,8 @@ const TeamSection = () => {
             </div>
           )
         ) : (
-          // Fallback: static data
-          <div className="grid gap-14 md:grid-cols-2 md:gap-16 lg:gap-20">
-            <div>
-              <div className="mb-8 flex items-center gap-3 border-b border-primary-foreground/10 pb-4">
-                <span className="h-px w-12 bg-harvest" />
-                <h2 className="font-heading text-xl font-semibold text-primary-foreground md:text-2xl">Tim Pertanian — Jagasura Farm</h2>
-              </div>
-              <div className="grid gap-4">
-                {timPertanian.map((m, i) => (
-                  <StaticTeamCard key={`pertanian-${m.name}-${i}`} member={m} index={i} />
-                ))}
-              </div>
-            </div>
-            <div>
-              <div className="mb-8 flex items-center gap-3 border-b border-primary-foreground/10 pb-4">
-                <span className="h-px w-12 bg-harvest" />
-                <h2 className="font-heading text-xl font-semibold text-primary-foreground md:text-2xl">Tim Peternakan — MJ Farm</h2>
-              </div>
-              <div className="grid gap-4">
-                {timPeternakan.map((m, i) => (
-                  <StaticTeamCard key={`peternakan-${m.name}-${i}`} member={m} index={i} />
-                ))}
-              </div>
-            </div>
+          <div className="text-center py-12">
+            <p className="text-primary-foreground/40 italic">Data tim belum tersedia di database.</p>
           </div>
         )}
       </div>

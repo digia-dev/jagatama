@@ -5,10 +5,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import type { CatalogProduct, ProductVariant } from "@/data/productsCatalog";
+import type { CatalogProduct } from "@/data/productsCatalog";
 import { formatIdr } from "@/data/productsCatalog";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Minus, Plus, Check } from "lucide-react";
+import { ShoppingCart, Minus, Plus, Check, Info } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { toast } from "@/components/ui/sonner";
 
@@ -50,67 +50,84 @@ const ProductDetailDialog = ({ product, open, onOpenChange }: ProductDetailDialo
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="max-h-[90vh] max-w-2xl gap-0 overflow-hidden overflow-y-auto border border-harvest/25 bg-earth-gradient p-0 text-primary-foreground shadow-2xl shadow-black/40 sm:rounded-sm [&>button]:text-primary-foreground/85 [&>button]:ring-offset-soil [&>button]:hover:bg-primary-foreground/10 [&>button]:hover:text-primary-foreground"
+        className="max-h-[95vh] max-w-xl gap-0 overflow-hidden overflow-y-auto bg-background p-0 shadow-2xl sm:rounded-2xl border-none"
       >
         {product ? (
-          <>
-            <div className="relative h-44 w-full shrink-0 overflow-hidden sm:h-52">
+          <div className="flex flex-col">
+            {/* Image Section - Shopee Style 1:1 */}
+            <div className="relative aspect-square w-full shrink-0 overflow-hidden bg-muted">
               <img
                 key={activeVariant?.image || product.image}
                 src={activeVariant?.image || product.image}
                 alt={activeVariant ? `${product.title} – ${activeVariant.label}` : product.title}
-                className="h-full w-full object-cover transition-opacity duration-300"
-                width={960}
-                height={400}
+                className="h-full w-full object-cover transition-all duration-500 hover:scale-105"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-soil/95 via-soil/35 to-transparent" />
+              {product.category && (
+                <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-widest">
+                  {product.category}
+                </div>
+              )}
             </div>
-            <div className="border-t border-primary-foreground/10 px-5 pb-6 pt-5 sm:px-8 sm:pb-8">
-              <DialogHeader className="space-y-2 text-left sm:space-y-3">
-                {product.category ? (
-                  <p className="font-body text-xs font-semibold uppercase tracking-wider text-harvest">{product.category}</p>
-                ) : null}
-                <DialogTitle className="font-heading text-xl font-bold text-primary-foreground sm:text-2xl md:text-3xl">
-                  {product.title}
-                </DialogTitle>
-                <p className="font-body text-sm leading-relaxed text-primary-foreground/75 sm:text-base">{product.description}</p>
+
+            {/* Product Info Section */}
+            <div className="px-6 py-6 sm:px-8">
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <DialogTitle className="font-heading text-2xl font-black text-foreground tracking-tight sm:text-3xl">
+                    {product.title}
+                  </DialogTitle>
+                  <p className="font-body text-xs leading-relaxed text-muted-foreground/80 line-clamp-3">
+                    {product.description}
+                  </p>
+                </div>
                 
-                <div className="flex items-baseline gap-2">
-                  <p className="font-heading text-2xl font-bold text-harvest sm:text-3xl">
+                {/* Price Display - Prominent like Shopee */}
+                <div className="flex items-center gap-2 py-2 px-4 bg-muted/30 rounded-xl border border-border/50">
+                  <p className="font-heading text-3xl font-black text-harvest">
                     {formatIdr(currentPrice)}
                   </p>
                   {product.priceNote && (
-                    <span className="font-body text-sm font-normal text-primary-foreground/70">{product.priceNote}</span>
+                    <span className="font-body text-sm font-medium text-muted-foreground pt-2">/ {product.priceNote}</span>
                   )}
                 </div>
-              </DialogHeader>
+              </div>
 
-              {/* Variants Selector */}
+              {/* Variants Selector - Chip with Thumbnails */}
               {product.variants && product.variants.length > 0 && (
-                <div className="mt-6 border-t border-primary-foreground/10 pt-6">
-                  <p className="mb-3 font-body text-xs font-semibold uppercase tracking-[0.2em] text-harvest">Pilih Variasi</p>
-                  <div className="flex flex-wrap gap-3">
+                <div className="mt-8">
+                  <div className="flex items-center justify-between mb-4">
+                    <p className="font-body text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Pilih Variasi</p>
+                    {activeVariant && (
+                      <span className="text-[10px] font-bold text-harvest bg-harvest/10 px-2 py-0.5 rounded-full">{activeVariant.label}</span>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     {product.variants.map((v) => {
                       const isSelected = activeVariant && String(v.id) === String(activeVariant.id);
                       return (
                         <button
                           key={String(v.id)}
                           onClick={() => setSelectedVariantId(String(v.id))}
-                          className={`group relative flex flex-col items-start rounded-xl border p-3 transition-all ${
+                          className={`group relative flex items-center gap-3 rounded-xl border p-2 text-left transition-all hover:shadow-md ${
                             isSelected
-                              ? "border-harvest bg-harvest/10 shadow-lg shadow-harvest/5"
-                              : "border-primary-foreground/10 bg-primary-foreground/5 hover:border-primary-foreground/30"
+                              ? "border-harvest bg-harvest/5 ring-1 ring-harvest"
+                              : "border-border bg-card hover:border-harvest/50"
                           }`}
                         >
-                          <span className={`text-sm font-semibold ${isSelected ? "text-harvest" : "text-primary-foreground"}`}>
-                            {v.label}
-                          </span>
-                          <span className="text-[10px] text-primary-foreground/60">
-                            {formatIdr(v.price || product.price)}
-                          </span>
+                          <div className="h-10 w-10 shrink-0 rounded-lg overflow-hidden bg-muted border border-border/50">
+                            <img src={v.image || product.image} alt="" className="h-full w-full object-cover" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className={`text-[11px] font-bold truncate ${isSelected ? "text-harvest" : "text-foreground"}`}>
+                              {v.label}
+                            </p>
+                            <p className="text-[9px] text-muted-foreground tabular-nums font-medium">
+                              {formatIdr(v.price || product.price)}
+                            </p>
+                          </div>
                           {isSelected && (
-                            <div className="absolute -right-1 -top-1 rounded-full bg-harvest p-0.5 text-white shadow-sm">
-                              <Check size={10} strokeWidth={3} />
+                            <div className="absolute -right-1.5 -top-1.5 rounded-full bg-harvest p-1 text-white shadow-lg">
+                              <Check size={8} strokeWidth={4} />
                             </div>
                           )}
                         </button>
@@ -120,59 +137,64 @@ const ProductDetailDialog = ({ product, open, onOpenChange }: ProductDetailDialo
                 </div>
               )}
 
-              {/* Legacy items list if no structured variants */}
-              {(!product.variants || product.variants.length === 0) && product.items && product.items.length > 0 && (
-                <div className="mt-5 border-t border-primary-foreground/10 pt-5 sm:mt-6 sm:pt-6">
-                  <p className="mb-2 font-body text-xs font-semibold uppercase tracking-[0.2em] text-harvest sm:mb-3">Komoditas</p>
-                  <ul className="flex flex-wrap gap-2">
-                    {product.items.map((item) => (
-                      <li
+              {/* Komoditas Badges if any */}
+              {(!product.variants || product.variants.length === 0) && (product as any).items && (product as any).items.length > 0 && (
+                <div className="mt-8">
+                  <p className="mb-3 font-body text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground">Komoditas</p>
+                  <div className="flex flex-wrap gap-2">
+                    {(product as any).items.map((item: string) => (
+                      <span
                         key={item}
-                        className="rounded-full border border-primary-foreground/15 bg-primary-foreground/5 px-2.5 py-1 font-body text-xs text-primary-foreground/90 sm:px-3 sm:py-1.5 sm:text-sm"
+                        className="rounded-full border border-border bg-muted/50 px-3 py-1 text-[11px] font-bold text-foreground"
                       >
                         {item}
-                      </li>
+                      </span>
                     ))}
-                  </ul>
+                  </div>
                 </div>
               )}
 
-              {/* Add to Cart Section */}
-              <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center">
-                {qty > 0 ? (
-                  <div className="flex h-12 items-center gap-2 rounded-xl border border-primary-foreground/20 bg-primary-foreground/5 p-1 sm:w-32">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-10 w-10 text-primary-foreground hover:bg-primary-foreground/10"
-                      onClick={() => decrement(product.id, variantId)}
-                    >
-                      <Minus size={16} />
-                    </Button>
-                    <span className="flex-1 text-center font-heading text-lg font-bold tabular-nums">
-                      {qty}
-                    </span>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-10 w-10 text-primary-foreground hover:bg-primary-foreground/10"
-                      onClick={() => increment(product.id, variantId)}
-                    >
-                      <Plus size={16} />
-                    </Button>
-                  </div>
-                ) : null}
+              {/* Price Disclaimer */}
+              <div className="mt-8 border-t border-border/50 pt-4">
+                <p className="text-[11px] text-muted-foreground italic text-center">
+                  * Harga bisa sewaktu-waktu berubah
+                </p>
+              </div>
+
+              {/* Add to Cart Section - Prominent Footer */}
+              <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center sticky bottom-0 bg-background/80 backdrop-blur-xl py-4 border-t border-border/50 -mx-6 px-6 sm:-mx-8 sm:px-8">
+                <div className="flex h-12 flex-1 items-center gap-4 rounded-2xl border border-border bg-muted/20 p-1.5 min-w-[140px] sm:flex-none">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-9 w-9 rounded-xl hover:bg-background shadow-sm"
+                    onClick={() => decrement(product.id, variantId)}
+                  >
+                    <Minus size={14} />
+                  </Button>
+                  <span className="flex-1 text-center font-heading text-xl font-black tabular-nums text-foreground">
+                    {qty}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-9 w-9 rounded-xl hover:bg-background shadow-sm"
+                    onClick={() => increment(product.id, variantId)}
+                  >
+                    <Plus size={14} />
+                  </Button>
+                </div>
 
                 <Button
                   onClick={handleAddToCart}
-                  className="h-12 flex-1 gap-2 rounded-xl bg-harvest text-base font-bold text-white shadow-lg shadow-harvest/20 hover:bg-harvest/90"
+                  className="h-12 flex-[2] gap-3 rounded-2xl bg-harvest text-base font-black text-white shadow-xl shadow-harvest/20 hover:bg-harvest/90 transition-all hover:scale-[1.02] active:scale-95"
                 >
-                  <ShoppingCart size={20} />
-                  {qty > 0 ? "Tambah Lagi" : "Tambah ke Keranjang"}
+                  <ShoppingCart size={20} strokeWidth={3} />
+                  {qty > 0 ? "TAMBAH LAGI" : "TAMBAH KE KERANJANG"}
                 </Button>
               </div>
             </div>
-          </>
+          </div>
         ) : null}
       </DialogContent>
     </Dialog>

@@ -43,7 +43,7 @@ const GallerySection = () => {
         key: g.id,
       }));
     }
-    return staticImages.map((g, i) => ({ ...g, key: `s-${i}` }));
+    return [];
   }, [data]);
 
   return (

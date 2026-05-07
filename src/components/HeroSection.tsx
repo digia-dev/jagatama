@@ -31,25 +31,9 @@ const HeroSection = () => {
         .slice()
         .sort((a, b) => a.sort_order - b.sort_order || a.id - b.id);
       
-      // If we are still loading, show fallback slides
+      // If we are still loading or no data from API, we return empty unless we want to show a default
       if (isPending || apiSlides.length === 0) {
-        return [
-          {
-            ...FB,
-            id: -1,
-            image_url: "/produk/Gambar%20Latar/Latar%202.jpg",
-          },
-          {
-            ...FB,
-            id: -2,
-            image_url: "/produk/Gambar%20Latar/2.jpg",
-          },
-          {
-            ...FB,
-            id: -3,
-            image_url: "/produk/Gambar%20Latar/5.jpg",
-          }
-        ];
+        return [];
       }
       return apiSlides;
     },

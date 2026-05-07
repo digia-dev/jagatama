@@ -6,20 +6,20 @@ export function getCmsBaseUrl() {
   if (v && typeof v === "string" && v.length > 0) {
     return v.replace(/\/$/, "");
   }
-
+  
   const h = window.location.hostname;
   const p = window.location.protocol;
-
+  
   // Jika sedang dijalankan secara lokal (localhost)
   const isLocal = h === "localhost" || h === "127.0.0.1" || h.startsWith("192.168.") || h.startsWith("10.");
-
+  
   if (isLocal) {
     return `http://${h}:8000`; // Mengarah ke PHP lokal
   }
 
   // Jika sudah di-deploy, arahkan ke folder /jagatama di domain yang sama
   // ATAU ganti URL di bawah ini dengan alamat hosting PHP Anda yang baru
-  return `${p}//${h}/jagatama`;
+  return `${p}//${h}/jagatama`; 
 }
 
 

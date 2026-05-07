@@ -23,14 +23,16 @@ if (!$db) {
 
 try {
     if ($method === 'GET') {
-        $stmt = $db->query("SELECT logo_url, brand_name, tagline FROM site_settings LIMIT 1");
+        $stmt = $db->query("SELECT logo_url, brand_name, tagline, address, maps_url FROM site_settings LIMIT 1");
         $settings = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if (!$settings) {
             $settings = [
                 "logo_url" => "/logotp.png",
                 "brand_name" => "Jagasura Agrotama",
-                "tagline" => "Sustainable Agriculture"
+                "tagline" => "Sustainable Agriculture",
+                "address" => "",
+                "maps_url" => ""
             ];
         }
         
@@ -52,18 +54,22 @@ try {
         $check = $db->query("SELECT COUNT(*) FROM site_settings")->fetchColumn();
         
         if ($check == 0) {
-            $stmt = $db->prepare("INSERT INTO site_settings (logo_url, brand_name, tagline) VALUES (?, ?, ?)");
+            $stmt = $db->prepare("INSERT INTO site_settings (logo_url, brand_name, tagline, address, maps_url) VALUES (?, ?, ?, ?, ?)");
             $stmt->execute([
                 $input['logo_url'] ?? '',
                 $input['brand_name'],
-                $input['tagline'] ?? ''
+                $input['tagline'] ?? '',
+                $input['address'] ?? '',
+                $input['maps_url'] ?? ''
             ]);
         } else {
-            $stmt = $db->prepare("UPDATE site_settings SET logo_url = ?, brand_name = ?, tagline = ?");
+            $stmt = $db->prepare("UPDATE site_settings SET logo_url = ?, brand_name = ?, tagline = ?, address = ?, maps_url = ?");
             $stmt->execute([
                 $input['logo_url'] ?? '',
                 $input['brand_name'],
-                $input['tagline'] ?? ''
+                $input['tagline'] ?? '',
+                $input['address'] ?? '',
+                $input['maps_url'] ?? ''
             ]);
         }
 

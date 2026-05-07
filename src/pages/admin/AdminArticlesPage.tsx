@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Search } from "lucide-react";
+import { Search, LayoutGrid, List, MoreVertical, Edit, Trash2, ImageIcon, Calendar } from "lucide-react";
 import { cmsFetch, cmsUploadFile } from "@/lib/cmsApi";
 import type { ArticleFullApi, ArticleSummaryApi } from "@/hooks/useCmsQueries";
 import { filterArticleSummaries, uniqueArticleCategories } from "@/lib/filterCatalogProducts";
@@ -41,6 +41,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { toast } from "@/components/ui/sonner";
+import MediaLibraryDialog from "@/components/admin/MediaLibraryDialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
 
 const ALL = "__all__";
 
@@ -55,6 +63,7 @@ const AdminArticlesPage = () => {
 
   const [search, setSearch] = useState("");
   const [filterCategory, setFilterCategory] = useState(ALL);
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   const categories = useMemo(() => uniqueArticleCategories(list ?? []), [list]);
 
@@ -233,7 +242,6 @@ const AdminArticlesPage = () => {
       setParagraphsText(data.paragraphs?.join("\n\n") || "");
       setDateDisplay(data.date_display || "");
       
-      // Auto generate slug from title
       const generatedSlug = (data.title || "")
         .toLowerCase()
         .replace(/[^\w ]+/g, "")
@@ -250,19 +258,37 @@ const AdminArticlesPage = () => {
     }
   };
 
-  const colCount = 6;
-
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="font-heading text-2xl font-bold text-foreground">Artikel</h1>
-        <div className="flex gap-2">
-          <Button type="button" variant="outline" onClick={() => setImportUrlDialogOpen(true)}>
-            Impor dari URL
-          </Button>
-          <Button type="button" onClick={openAdd}>
-            Tambah artikel
-          </Button>
+        <div className="flex items-center gap-2">
+          <div className="flex bg-muted p-1 rounded-md mr-2">
+            <Button 
+              variant={viewMode === "grid" ? "secondary" : "ghost"} 
+              size="icon" 
+              className="h-8 w-8" 
+              onClick={() => setViewMode("grid")}
+            >
+              <LayoutGrid className="h-4 w-4" />
+            </Button>
+            <Button 
+              variant={viewMode === "list" ? "secondary" : "ghost"} 
+              size="icon" 
+              className="h-8 w-8" 
+              onClick={() => setViewMode("list")}
+            >
+              <List className="h-4 w-4" />
+            </Button>
+          </div>
+          <div className="flex gap-2">
+            <Button type="button" variant="outline" size="sm" onClick={() => setImportUrlDialogOpen(true)}>
+              Impor dari URL
+            </Button>
+            <Button type="button" size="sm" onClick={openAdd}>
+              Tambah artikel
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -276,7 +302,7 @@ const AdminArticlesPage = () => {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Judul, slug, ringkasan, kategori…"
-              className="border-border bg-background pl-9"
+              className="border-border bg-background pl-9 h-9"
               autoComplete="off"
             />
           </div>
@@ -284,7 +310,7 @@ const AdminArticlesPage = () => {
         <div className="w-full space-y-2 sm:w-52 md:w-60">
           <Label htmlFor="admin-artikel-kategori">Kategori</Label>
           <Select value={filterCategory} onValueChange={setFilterCategory}>
-            <SelectTrigger id="admin-artikel-kategori" className="border-border bg-background">
+            <SelectTrigger id="admin-artikel-kategori" className="border-border bg-background h-9">
               <SelectValue placeholder="Semua" />
             </SelectTrigger>
             <SelectContent>
@@ -299,63 +325,115 @@ const AdminArticlesPage = () => {
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-border bg-card">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[100px] min-w-[88px]">Gambar</TableHead>
-              <TableHead className="min-w-[180px]">Judul</TableHead>
-              <TableHead className="hidden min-w-[100px] lg:table-cell">Kategori</TableHead>
-              <TableHead className="hidden min-w-[110px] md:table-cell">Tanggal</TableHead>
-              <TableHead className="hidden min-w-[140px] xl:table-cell">Slug</TableHead>
-              <TableHead className="w-[1%] whitespace-nowrap text-right">Aksi</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isPending ? (
-              <TableRow>
-                <TableCell colSpan={colCount} className="text-muted-foreground">
-                  Memuat…
-                </TableCell>
+      {isPending ? (
+        <div className="flex h-64 items-center justify-center text-muted-foreground">Memuat…</div>
+      ) : filtered.length === 0 ? (
+        <div className="flex h-64 items-center justify-center border-2 border-dashed border-border rounded-xl bg-muted/30 text-muted-foreground text-sm">
+          {list?.length ? "Tidak ada artikel yang cocok dengan filter." : "Belum ada artikel."}
+        </div>
+      ) : viewMode === "grid" ? (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+          {filtered.map((a) => (
+            <div key={a.id} className="group flex flex-col bg-card rounded-xl border border-border overflow-hidden hover:shadow-md transition-all hover:-translate-y-0.5 cursor-pointer" onClick={() => openEdit(a.id)}>
+              <div className="relative aspect-[4/3] bg-muted overflow-hidden">
+                {a.image_url ? (
+                  <img src={a.image_url} alt="" className="w-full h-full object-cover transition-transform group-hover:scale-105" />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-muted-foreground/30">
+                    <ImageIcon className="h-8 w-8" />
+                  </div>
+                )}
+                <div className="absolute top-1.5 right-1.5 opacity-0 group-hover:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="secondary" size="icon" className="h-7 w-7 shadow-sm">
+                        <MoreVertical className="h-3.5 w-3.5" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => openEdit(a.id)}>
+                        <Edit className="h-3.5 w-3.5 mr-2" /> Ubah
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="text-destructive" onClick={() => setDeleteId(a.id)}>
+                        <Trash2 className="h-3.5 w-3.5 mr-2" /> Hapus
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+                {a.category && (
+                  <Badge className="absolute top-1.5 left-1.5 bg-harvest/90 backdrop-blur-sm text-[8px] h-3.5 px-1.5">
+                    {a.category}
+                  </Badge>
+                )}
+              </div>
+              <div className="p-2.5 flex-1 flex flex-col">
+                <div className="flex items-center gap-1.5 text-[9px] text-muted-foreground mb-1.5">
+                  <Calendar className="h-2.5 w-2.5" />
+                  {a.date_display || "—"}
+                </div>
+                <h3 className="font-bold text-[11px] leading-tight line-clamp-2 mb-1.5 group-hover:text-harvest transition-colors">
+                  {a.title}
+                </h3>
+                <div className="mt-auto pt-2 border-t border-border/40 flex items-center justify-between">
+                  <span className="text-[8px] font-mono text-muted-foreground truncate max-w-[80px]">/{a.slug}</span>
+                  <div className="flex gap-1">
+                    <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full hover:bg-harvest/10 hover:text-harvest" onClick={(e) => { e.stopPropagation(); openEdit(a.id); }}>
+                      <Edit className="h-3 w-3" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full hover:bg-destructive/10 hover:text-destructive" onClick={(e) => { e.stopPropagation(); setDeleteId(a.id); }}>
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="overflow-hidden rounded-lg border border-border bg-card">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-muted/50">
+                <TableHead className="w-[80px] min-w-[80px]">Gambar</TableHead>
+                <TableHead className="min-w-[180px]">Judul</TableHead>
+                <TableHead className="hidden min-w-[100px] lg:table-cell">Kategori</TableHead>
+                <TableHead className="hidden min-w-[110px] md:table-cell">Tanggal</TableHead>
+                <TableHead className="w-[1%] whitespace-nowrap text-right">Aksi</TableHead>
               </TableRow>
-            ) : filtered.length ? (
-              filtered.map((a) => (
-                <TableRow key={a.id}>
+            </TableHeader>
+            <TableBody>
+              {filtered.map((a) => (
+                <TableRow key={a.id} className="hover:bg-muted/30 cursor-pointer" onClick={() => openEdit(a.id)}>
                   <TableCell className="align-middle">
                     {a.image_url ? (
-                      <img src={a.image_url} alt="" className="h-14 w-[88px] rounded-md border border-border/60 object-cover" />
+                      <img src={a.image_url} alt="" className="h-10 w-14 rounded-md border border-border/60 object-cover" />
                     ) : (
-                      <div className="flex h-14 w-[88px] items-center justify-center rounded-md border border-dashed border-border bg-muted/50 text-[10px] text-muted-foreground">
+                      <div className="flex h-10 w-14 items-center justify-center rounded-md border border-dashed border-border bg-muted/50 text-[10px] text-muted-foreground">
                         —
                       </div>
                     )}
                   </TableCell>
-                  <TableCell className="max-w-[300px] align-middle font-medium lg:max-w-md xl:max-w-lg">
-                    <span className="line-clamp-2">{a.title}</span>
+                  <TableCell className="max-w-[300px] align-middle font-medium lg:max-w-md">
+                    <span className="line-clamp-1 text-sm">{a.title}</span>
                   </TableCell>
-                  <TableCell className="hidden align-middle text-muted-foreground lg:table-cell">{a.category || "—"}</TableCell>
-                  <TableCell className="hidden align-middle text-sm text-muted-foreground md:table-cell">{a.date_display || "—"}</TableCell>
-                  <TableCell className="hidden max-w-[220px] truncate align-middle font-mono text-xs text-muted-foreground xl:table-cell">{a.slug}</TableCell>
+                  <TableCell className="hidden align-middle text-xs text-muted-foreground lg:table-cell">{a.category || "—"}</TableCell>
+                  <TableCell className="hidden align-middle text-xs text-muted-foreground md:table-cell">{a.date_display || "—"}</TableCell>
                   <TableCell className="whitespace-nowrap text-right align-middle">
-                    <Button type="button" variant="outline" size="sm" className="mr-2" onClick={() => openEdit(a.id)} disabled={loadingFull}>
-                      Ubah
-                    </Button>
-                    <Button type="button" variant="destructive" size="sm" onClick={() => setDeleteId(a.id)}>
-                      Hapus
-                    </Button>
+                    <div className="flex items-center justify-end gap-1.5" onClick={e => e.stopPropagation()}>
+                      <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-harvest" onClick={() => openEdit(a.id)} disabled={loadingFull}>
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={() => setDeleteId(a.id)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={colCount} className="text-muted-foreground">
-                  {list?.length ? "Tidak ada artikel yang cocok dengan filter." : "Belum ada artikel."}
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-2xl">
@@ -388,7 +466,10 @@ const AdminArticlesPage = () => {
             <div className="space-y-2">
               <Label>Gambar utama</Label>
               {imageUrl ? <img src={imageUrl} alt="" className="max-h-36 rounded-md object-cover" /> : null}
-              <Input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} />
+              <div className="flex gap-2">
+                <Input className="flex-1" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} />
+                <MediaLibraryDialog onSelect={(url) => setImageUrl(url)} />
+              </div>
               <Input type="file" accept="image/*" disabled={uploading} onChange={uploadMain} />
             </div>
             <div className="space-y-2">
@@ -399,11 +480,18 @@ const AdminArticlesPage = () => {
               <Label>Gambar tambahan</Label>
               {extras.map((ex, i) => (
                 <div key={i} className="space-y-2 rounded-md border border-border p-3">
-                  <Input placeholder="URL gambar" value={ex.image_url} onChange={(e) => {
-                    const next = [...extras];
-                    next[i] = { ...next[i], image_url: e.target.value };
-                    setExtras(next);
-                  }} />
+                  <div className="flex gap-2">
+                    <Input className="flex-1" placeholder="URL gambar" value={ex.image_url} onChange={(e) => {
+                      const next = [...extras];
+                      next[i] = { ...next[i], image_url: e.target.value };
+                      setExtras(next);
+                    }} />
+                    <MediaLibraryDialog onSelect={(url) => {
+                      const next = [...extras];
+                      next[i] = { ...next[i], image_url: url };
+                      setExtras(next);
+                    }} />
+                  </div>
                   <Input type="file" accept="image/*" disabled={uploading} onChange={(e) => uploadExtra(i, e)} />
                   <Input placeholder="Keterangan" value={ex.caption} onChange={(e) => {
                     const next = [...extras];
