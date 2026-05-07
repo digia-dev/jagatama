@@ -63,11 +63,6 @@ const AboutSection = () => {
         {/* Split layout */}
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-start">
           {/* Galeri */}
-          
-            <div className="absolute -bottom-6 -right-6 bg-canopy text-primary-foreground p-6 rounded-sm hidden md:block z-10 shadow-lg">
-              <p className="font-heading text-2xl font-bold">PT Jagasura</p>
-              <p className="font-body text-sm text-primary-foreground/70">Agrotama</p>
-            </div>
           </div>
 
           {/* Text */}
