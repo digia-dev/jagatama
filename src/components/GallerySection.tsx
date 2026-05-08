@@ -9,26 +9,6 @@ import { X } from "lucide-react";
 import { useGalleryCms } from "@/hooks/useCmsQueries";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 
-const staticImages = [
-  { src: "/produk/Gambar%20Latar/Latar%202.jpg", alt: "Greenhouse Jagasura Agrotama" },
-  { src: "/produk/Gambar%20Latar/GH.jpg", alt: "Interior Greenhouse" },
-  { src: "/produk/Melon%20Premium/IMG_20260419_234019%20(1).png", alt: "Melon Premium Harvest" },
-  { src: "/produk/Melon%20Premium/IMG_20260419_234135%20(1).png", alt: "Melon Premium Fujisawa" },
-  { src: "/produk/Melon%20Premium/IMG_20260419_234202%20(1).png", alt: "Melon Premium Inthanon" },
-  { src: "/produk/Melon%20Premium/IMG_20260419_234230%20(1).png", alt: "Sortasi Melon Premium" },
-  { src: "/produk/Melon%20Premium/IMG_20260419_234255%20(1).png", alt: "Melon Premium Siap Distribusi" },
-  { src: "/produk/Gambar%20Sinergitas%20(Tentang%20Kami)/Pelatihan.png", alt: "Program Pelatihan Petani Muda" },
-  { src: "/produk/Gambar%20Sinergitas%20(Tentang%20Kami)/Bupati%20Tegal.png", alt: "Kunjungan Bupati Tegal" },
-  { src: "/produk/Gambar%20Sinergitas%20(Tentang%20Kami)/Rektor%20UMT.jpg", alt: "Sinergi dengan Rektor UMT" },
-  { src: "/produk/Gambar%20Sinergitas%20(Tentang%20Kami)/Kyai.png", alt: "Dukungan Tokoh Agama" },
-  { src: "/produk/Gambar%20Sinergitas%20(Tentang%20Kami)/Baznaz%20Cirebon.png", alt: "Sinergi Baznaz Cirebon" },
-  { src: "/produk/Gambar%20Sinergitas%20(Tentang%20Kami)/Halal%20Bi%20Halal.png", alt: "Halal Bi Halal Komunitas" },
-  { src: "/produk/Gambar%20Sinergitas%20(Tentang%20Kami)/Bu%20Ina.png", alt: "Kunjungan Mitra Strategis" },
-  { src: "/produk/Holtikultura/Ubi%20Madu.jpg", alt: "Ubi Madu Premium" },
-  { src: "/produk/Holtikultura/Bayam%20Jepang.jpeg", alt: "Bayam Jepang Hortikultura" },
-  { src: "/produk/Tanaman%20Buah/1776621791847.jpg.jpeg", alt: "Buah Tropis Unggulan" },
-];
-
 type GalleryImg = { src: string; alt: string; key: string | number };
 
 const GallerySection = () => {

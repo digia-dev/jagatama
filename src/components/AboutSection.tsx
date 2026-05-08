@@ -34,21 +34,6 @@ const AboutSection = () => {
   const { data } = useGalleryCms();
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const images = useMemo(() => {
-    if (data && data.length > 0) {
-      return data.map((g) => g.image_url);
-    }
-    return ["/produk/Gambar%20Sinergitas%20(Tentang%20Kami)/Bu%20Ina.png"];
-  }, [data]);
-
-  useEffect(() => {
-    if (images.length <= 1) return;
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % images.length);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, [images.length]);
-
   return (
     <section id="tentang" className="section-padding bg-cream-gradient">
       <div className="max-w-7xl mx-auto">
