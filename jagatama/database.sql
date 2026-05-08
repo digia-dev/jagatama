@@ -33,8 +33,6 @@ CREATE TABLE site_settings (
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO site_settings (logo_url, brand_name, tagline) VALUES ('/logotp.png', 'Jagasura Agrotama', 'Sustainable Agriculture');
-
 CREATE TABLE hero_slides (
   id INT NOT NULL AUTO_INCREMENT,
   image_url VARCHAR(1024) NOT NULL,
@@ -55,11 +53,6 @@ CREATE TABLE hero_slides (
   PRIMARY KEY (id),
   KEY idx_hero_slides_sort (sort_order)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-INSERT INTO hero_slides (image_url, sort_order, eyebrow, headline_part1, headline_highlight, headline_part2, description_text, primary_cta_label, primary_cta_hash, secondary_cta_label, secondary_cta_hash, footer_left, footer_right) VALUES
-('https://images.unsplash.com/photo-1530836369250-ef72a3f5cda8?w=1920&q=80', 0, 'PT Jagasura Agrotama Indonesia · Hortikultura dan peternakan terintegrasi', 'Operasi agro terpadu: ', 'budidaya', ', edukasi, dan nilai tambah berkelanjutan', 'Greenhouse dan hortikultura, MJ Farm, serta diklat dan magang—dijalankan secara teknis dan terukur.', 'Lihat Produk Kami', 'produk', 'Hubungi Kami', 'kontak', 'Jagasura Farm', 'MJ Farm'),
-('https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=1920&q=80', 1, 'PT Jagasura Agrotama Indonesia · Hortikultura dan peternakan terintegrasi', 'Operasi agro terpadu: ', 'budidaya', ', edukasi, dan nilai tambah berkelanjutan', 'Greenhouse dan hortikultura, MJ Farm, serta diklat dan magang—dijalankan secara teknis dan terukur.', 'Lihat Produk Kami', 'produk', 'Hubungi Kami', 'kontak', 'Jagasura Farm', 'MJ Farm'),
-('https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=1920&q=80', 2, 'PT Jagasura Agrotama Indonesia · Hortikultura dan peternakan terintegrasi', 'Operasi agro terpadu: ', 'budidaya', ', edukasi, dan nilai tambah berkelanjutan', 'Greenhouse dan hortikultura, MJ Farm, serta diklat dan magang—dijalankan secara teknis dan terukur.', 'Lihat Produk Kami', 'produk', 'Hubungi Kami', 'kontak', 'Jagasura Farm', 'MJ Farm');
 
 CREATE TABLE products (
   id INT NOT NULL AUTO_INCREMENT,
@@ -85,17 +78,6 @@ CREATE TABLE product_variants (
   KEY idx_pv_product (product_id),
   CONSTRAINT fk_pv_product FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-INSERT INTO products (title, category, description, image_url, price, price_note, sort_order) VALUES
-('Melon Premium', 'Buah', 'Dibudidayakan dalam greenhouse berteknologi tinggi dengan kualitas premium.', 'https://images.unsplash.com/photo-1599599810769-bcde5a160d32?w=1200&q=80', 85000, 'per kg', 1),
-('Buah Tropis', 'Buah', 'Komoditas buah tropis bernilai tinggi dari perkebunan terpadu.', 'https://images.unsplash.com/photo-1619566636858-adfe3c16a13b?w=1200&q=80', 45000, 'per kg', 2),
-('Hortikultura', 'Sayuran', 'Sayuran dan komoditas hortikultura dengan nilai ekonomi tinggi.', 'https://images.unsplash.com/photo-1592419047123-071b8e0f7e4d?w=1200&q=80', 25000, 'per kg', 3),
-('Usaha Ternak & RPH', 'Peternakan', 'Peternakan kambing dan rumah pemotongan hewan berstandar nasional dengan cold storage terintegrasi.', 'https://images.unsplash.com/photo-1500597377353-f2f23f0d8c1e?w=1200&q=80', 120000, 'estimasi per paket', 4);
-
-INSERT INTO product_variants (product_id, label, sort_order) VALUES
-(1, 'Fujisawa (Jepang)', 0), (1, 'Inthanon (Belanda)', 1), (1, 'Sweet Net (Thailand)', 2), (1, 'Chamoe (Korea)', 3), (1, 'Rangipo', 4),
-(2, 'Alpukat', 0), (2, 'Durian', 1), (2, 'Jambu Air', 2), (2, 'Jeruk Lemon', 3), (2, 'Mangga', 4), (2, 'Markisa', 5), (2, 'Pepaya', 6),
-(3, 'Cabai', 0), (3, 'Kembang Kol', 1), (3, 'Kentang', 2), (3, 'Lettuce', 3), (3, 'Tomat', 4), (3, 'Terong', 5), (3, 'Timun', 6);
 
 CREATE TABLE articles (
   id INT NOT NULL AUTO_INCREMENT,
@@ -132,37 +114,6 @@ CREATE TABLE article_extra_images (
   CONSTRAINT fk_ae_article FOREIGN KEY (article_id) REFERENCES articles (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO articles (slug, title, excerpt, category, date_display, image_url) VALUES (
-  'regenerasi-petani-muda-tantangan-dan-peluang',
-  'Regenerasi Petani Muda: Tantangan dan Peluang di Era Modern',
-  'Indonesia membutuhkan generasi baru petani yang tidak hanya memahami cara bercocok tanam, tetapi juga menguasai teknologi dan bisnis.',
-  'Agro-Education',
-  '15 Mar 2026',
-  'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=1200&q=80'
-);
-
-INSERT INTO article_paragraphs (article_id, body, sort_order) VALUES
-(1, 'Regenerasi petani muda menjadi salah satu agenda strategis ketahanan pangan nasional. Di tengah penuaan demografi pelaku pertanian, masuknya generasi muda ke sektor ini menentukan apakah Indonesia mampu menjaga produktivitas sekaligus daya saing di pasar global.', 0),
-(1, 'Tantangan utamanya tidak lagi sekadar keterampilan budidaya lapangan. Petani masa kini dihadapkan pada data, rantai pasok, standar mutu, serta tuntutan keberlanjutan lingkungan.', 1),
-(1, 'Jagasura Agrotama berkomitmen mendukung regenerasi ini melalui program edukasi lapangan, fasilitasi magang, dan demonstrasi teknologi tepat guna.', 2);
-
-INSERT INTO article_extra_images (article_id, image_url, caption, sort_order) VALUES
-(1, 'https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=1200&q=80', 'Kegiatan lapangan bersama peserta magang di area budidaya.', 0),
-(1, 'https://images.unsplash.com/photo-1586771107445-d3ca888129ff?w=1200&q=80', 'Ruang pelatihan dan demonstrasi teknik budidaya terkini.', 1);
-
-INSERT INTO articles (slug, title, excerpt, category, date_display, image_url) VALUES (
-  'melon-premium-jagasura-farm-tembus-pasar-nasional',
-  'Melon Premium Jagasura Farm Tembus Pasar Nasional',
-  'Dengan budidaya greenhouse berteknologi tinggi, melon varietas unggul berhasil memasuki pasar premium.',
-  'Product Update',
-  '8 Mar 2026',
-  'https://images.unsplash.com/photo-1599599810769-bcde5a160d32?w=1200&q=80'
-);
-
-INSERT INTO article_paragraphs (article_id, body, sort_order) VALUES
-(2, 'Produksi melon premium di lingkungan greenhouse memungkinkan pengendalian iklim mikro, irigasi presisi, dan jadwal panen yang lebih konsisten.', 0),
-(2, 'Ekspansi ke pasar nasional membutuhkan integritas rantai dingin dan dokumentasi traceability sederhana.', 1);
-
 CREATE TABLE gallery_items (
   id INT NOT NULL AUTO_INCREMENT,
   image_url VARCHAR(1024) NOT NULL,
@@ -173,11 +124,169 @@ CREATE TABLE gallery_items (
   PRIMARY KEY (id),
   KEY idx_gallery_sort (sort_order)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- Add address and maps_url to site_settings
+ALTER TABLE site_settings ADD COLUMN IF NOT EXISTS address TEXT AFTER tagline;
+ALTER TABLE site_settings ADD COLUMN IF NOT EXISTS maps_url TEXT AFTER address;
 
-INSERT INTO gallery_items (image_url, alt_text, sort_order, is_tall) VALUES
-('https://images.unsplash.com/photo-1530836369250-ef72a3f5cda8?w=1200&q=80', 'Greenhouse aerial view', 0, 1),
-('https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=1200&q=80', 'Hands planting seedlings', 1, 0),
-('https://images.unsplash.com/photo-1599599810769-bcde5a160d32?w=1200&q=80', 'Premium melon cultivation', 2, 0),
-('https://images.unsplash.com/photo-1586771107445-d3ca888129ff?w=1200&q=80', 'Young farmers in training', 3, 0),
-('https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=1200&q=80', 'Greenhouse interior', 4, 1),
-('https://images.unsplash.com/photo-1500597377353-f2f23f0d8c1e?w=1200&q=80', 'Livestock grazing', 5, 0);
+-- Update existing settings with default values
+UPDATE site_settings SET 
+  address = 'Dukuhwaru, Tegal, Jawa Tengah', 
+  maps_url = 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15843.43235338167!2d109.0838186173828!3d-6.9075746!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e6fb9b9a67448d3%3A0x7d6f556b6b778c1!2sDukuhwaru%2C%20Kec.%20Dukuhwaru%2C%20Kabupaten%20Tegal%2C%20Jawa%20Tengah!5e0!3m2!1sid!2sid!4v1715050000000!5m2!1sid!2sid'
+WHERE id = 1;
+-- Fix products table schema step by step
+-- 1. Add columns without index first
+ALTER TABLE products ADD COLUMN IF NOT EXISTS slug VARCHAR(255) NOT NULL DEFAULT '' AFTER id;
+ALTER TABLE products ADD COLUMN IF NOT EXISTS price_on_request TINYINT(1) NOT NULL DEFAULT 0 AFTER price_note;
+
+-- 2. Update existing slugs with unique values based on ID
+UPDATE products SET slug = CONCAT('product-', id) WHERE slug = '';
+
+-- 3. Now add the unique index
+ALTER TABLE products ADD UNIQUE INDEX IF NOT EXISTS idx_products_slug (slug);
+-- Transform Gallery into a File Manager (Drive-like)
+ALTER TABLE gallery_items ADD COLUMN IF NOT EXISTS parent_id INT DEFAULT NULL;
+ALTER TABLE gallery_items ADD COLUMN IF NOT EXISTS is_folder TINYINT(1) DEFAULT 0;
+ALTER TABLE gallery_items ADD COLUMN IF NOT EXISTS file_type VARCHAR(50) DEFAULT 'image'; -- 'image', 'document', 'folder'
+ALTER TABLE gallery_items ADD COLUMN IF NOT EXISTS file_size INT DEFAULT 0;
+ALTER TABLE gallery_items ADD COLUMN IF NOT EXISTS mime_type VARCHAR(100) DEFAULT NULL;
+
+-- Index for folder structure
+CREATE INDEX idx_gallery_parent ON gallery_items(parent_id);
+
+-- Update existing items to be images
+UPDATE gallery_items SET file_type = 'image' WHERE file_type IS NULL OR file_type = '';
+SET NAMES utf8mb4;
+
+ALTER TABLE hero_slides
+  ADD COLUMN eyebrow VARCHAR(512) NOT NULL DEFAULT '' AFTER sort_order,
+  ADD COLUMN headline_part1 VARCHAR(512) NOT NULL DEFAULT '' AFTER eyebrow,
+  ADD COLUMN headline_highlight VARCHAR(256) NOT NULL DEFAULT '' AFTER headline_part1,
+  ADD COLUMN headline_part2 VARCHAR(512) NOT NULL DEFAULT '' AFTER headline_highlight,
+  ADD COLUMN description_text TEXT NULL AFTER headline_part2,
+  ADD COLUMN primary_cta_label VARCHAR(128) NOT NULL DEFAULT '' AFTER description_text,
+  ADD COLUMN primary_cta_hash VARCHAR(128) NOT NULL DEFAULT '' AFTER primary_cta_label,
+  ADD COLUMN secondary_cta_label VARCHAR(128) NOT NULL DEFAULT '' AFTER primary_cta_hash,
+  ADD COLUMN secondary_cta_hash VARCHAR(128) NOT NULL DEFAULT '' AFTER secondary_cta_label,
+  ADD COLUMN footer_left VARCHAR(128) NOT NULL DEFAULT '' AFTER secondary_cta_hash,
+  ADD COLUMN footer_right VARCHAR(128) NOT NULL DEFAULT '' AFTER footer_left,
+  ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP AFTER created_at;
+
+UPDATE hero_slides s
+INNER JOIN hero_content h ON h.id = 1
+SET
+  s.eyebrow = h.eyebrow,
+  s.headline_part1 = h.headline_part1,
+  s.headline_highlight = h.headline_highlight,
+  s.headline_part2 = h.headline_part2,
+  s.description_text = h.description_text,
+  s.primary_cta_label = h.primary_cta_label,
+  s.primary_cta_hash = h.primary_cta_hash,
+  s.secondary_cta_label = h.secondary_cta_label,
+  s.secondary_cta_hash = h.secondary_cta_hash,
+  s.footer_left = h.footer_left,
+  s.footer_right = h.footer_right;
+
+DROP TABLE IF EXISTS hero_content;
+SET NAMES utf8mb4;
+
+CREATE TABLE IF NOT EXISTS hero_slides (
+  id INT NOT NULL AUTO_INCREMENT,
+  image_url VARCHAR(1024) NOT NULL,
+  sort_order INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_hero_slides_sort (sort_order)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO hero_slides (image_url, sort_order)
+SELECT hc.image_url, 0
+FROM hero_content hc
+WHERE hc.id = 1 AND TRIM(COALESCE(hc.image_url, '')) <> ''
+  AND NOT EXISTS (SELECT 1 FROM hero_slides LIMIT 1);
+
+ALTER TABLE hero_content DROP COLUMN IF EXISTS image_url;
+-- =====================================================
+-- MIGRATION: New Features for Jagasura CMS
+-- Run this script ONCE on your production database
+-- =====================================================
+
+-- 1. Add price column to product_variants
+ALTER TABLE product_variants ADD COLUMN IF NOT EXISTS price INT NOT NULL DEFAULT 0 AFTER label;
+
+-- 2. Create testimonials table
+CREATE TABLE IF NOT EXISTS testimonials (
+  id INT NOT NULL AUTO_INCREMENT,
+  name VARCHAR(255) NOT NULL,
+  role VARCHAR(255) NOT NULL DEFAULT '',
+  content TEXT NOT NULL,
+  avatar_url VARCHAR(1024) NOT NULL DEFAULT '',
+  rating INT NOT NULL DEFAULT 5,
+  is_active TINYINT(1) NOT NULL DEFAULT 1,
+  sort_order INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_testimonials_sort (sort_order)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Seed testimonials
+INSERT IGNORE INTO testimonials (name, role, content, rating, sort_order, is_active) VALUES
+('Budi Santoso', 'Petani Mitra, Tegal', 'Bergabung dengan program kemitraan Jagasura membuka wawasan saya tentang pertanian modern. Hasil panen meningkat signifikan setelah menggunakan teknik yang diajarkan.', 5, 1, 1),
+('Siti Rahayu', 'Peserta Diklat', 'Program magang di Jagasura sangat intensif dan aplikatif. Saya mendapat pengalaman langsung mengelola greenhouse skala komersial.', 5, 2, 1),
+('Ahmad Fauzi', 'Distributor Mitra', 'Kualitas melon premium konsisten dan rantai pasok terjaga baik. Pelanggan selalu puas dengan produk dari Jagasura Farm.', 5, 3, 1);
+
+-- 3. Create team_members table
+CREATE TABLE IF NOT EXISTS team_members (
+  id INT NOT NULL AUTO_INCREMENT,
+  name VARCHAR(255) NOT NULL,
+  position VARCHAR(255) NOT NULL DEFAULT '',
+  department VARCHAR(255) NOT NULL DEFAULT '',
+  bio TEXT,
+  avatar_url VARCHAR(1024) NOT NULL DEFAULT '',
+  sort_order INT NOT NULL DEFAULT 0,
+  is_active TINYINT(1) NOT NULL DEFAULT 1,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_team_sort (sort_order)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Seed team members
+INSERT IGNORE INTO team_members (name, position, department, bio, sort_order, is_active) VALUES
+('Direktur Utama', 'Direktur Utama', 'Manajemen', 'Memimpin visi dan strategi PT Jagasura Agrotama Indonesia menuju pertanian terpadu berkelanjutan.', 1, 1),
+('Manajer Produksi', 'Manajer Produksi', 'Produksi', 'Bertanggung jawab atas operasional greenhouse dan budidaya hortikultura premium.', 2, 1),
+('Manajer Kemitraan', 'Manajer Kemitraan', 'Bisnis', 'Mengelola jaringan mitra petani dan program pemberdayaan agropreneurship.', 3, 1),
+('Kepala Riset', 'Kepala Riset & Inovasi', 'Riset', 'Mengembangkan teknologi pertanian presisi dan varietasi tanaman unggul.', 4, 1);
+
+-- 4. Create whatsapp_contacts table
+CREATE TABLE IF NOT EXISTS whatsapp_contacts (
+  id INT NOT NULL AUTO_INCREMENT,
+  label VARCHAR(255) NOT NULL,
+  phone VARCHAR(20) NOT NULL,
+  department VARCHAR(255) NOT NULL DEFAULT '',
+  is_primary TINYINT(1) NOT NULL DEFAULT 0,
+  is_active TINYINT(1) NOT NULL DEFAULT 1,
+  sort_order INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Seed whatsapp contacts
+INSERT IGNORE INTO whatsapp_contacts (label, phone, department, is_primary, is_active, sort_order) VALUES
+('CS Utama', '6285743855637', 'Customer Service', 1, 1, 1),
+('Tim Produksi', '6285743855637', 'Produksi', 0, 1, 2),
+('Kemitraan', '6285743855637', 'Bisnis', 0, 1, 3);
+
+-- =====================================================
+-- NOTE: To run this on existing DB:
+-- mysql -u root -p your_database_name < migrate_new_features.sql
+-- =====================================================
+ALTER TABLE products
+  ADD COLUMN category VARCHAR(128) NOT NULL DEFAULT '' AFTER title;
+-- Add tags to gallery_items for media library functionality
+ALTER TABLE gallery_items ADD COLUMN IF NOT EXISTS tags VARCHAR(255) DEFAULT '' AFTER is_tall;
+ALTER TABLE gallery_items ADD COLUMN IF NOT EXISTS title VARCHAR(255) DEFAULT '' AFTER tags;
+
+-- Index for searching tags
+CREATE INDEX idx_gallery_tags ON gallery_items(tags);

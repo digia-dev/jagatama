@@ -1,2 +1,0 @@
-ALTER TABLE products
-  ADD COLUMN category VARCHAR(128) NOT NULL DEFAULT '' AFTER title;
